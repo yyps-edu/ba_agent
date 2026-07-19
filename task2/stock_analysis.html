@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恒瑞医药股票分析报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f5f5; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+        .header { text-align: center; margin-bottom: 40px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; }
+        .header h1 { font-size: 32px; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 16px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; }
+        .stat-card .label { color: #888; font-size: 14px; margin-bottom: 8px; }
+        .stat-card .value { font-size: 24px; font-weight: bold; color: #667eea; }
+        .section { background: white; border-radius: 12px; padding: 30px; margin-bottom: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .section-title { font-size: 20px; color: #667eea; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+        .chart-img { width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .analysis-text { margin-top: 20px; line-height: 1.8; color: #555; font-size: 15px; }
+        .analysis-text strong { color: #333; }
+        .indicator-box { display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 13px; margin-right: 10px; margin-bottom: 10px; }
+        .bullish { background: #e8f5e9; color: #2e7d32; }
+        .bearish { background: #ffebee; color: #c62828; }
+        .neutral { background: #fff3e0; color: #e65100; }
+        .footer { text-align: center; padding: 20px; color: #888; font-size: 14px; }
+        @media (max-width: 768px) { .header h1 { font-size: 24px; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 恒瑞医药 (600276) 股票分析报告</h1>
+            <p>数据周期：2025年6月1日 - 2025年12月31日 | 共147条交易记录</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><div class="label">缺失值</div><div class="value">0个</div></div>
+            <div class="stat-card"><div class="label">日均收益率</div><div class="value">-0.0012</div></div>
+            <div class="stat-card"><div class="label">收益率标准差</div><div class="value">0.0234</div></div>
+            <div class="stat-card"><div class="label">最大涨幅</div><div class="value">0.0685</div></div>
+            <div class="stat-card"><div class="label">最大跌幅</div><div class="value">-0.0782</div></div>
+            <div class="stat-card"><div class="label">数据文件</div><div class="value">恒瑞医药.csv</div></div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📊 收盘价走势图</h2>
+            <img src="close_price.png" alt="收盘价走势图" class="chart-img">
+            <div class="analysis-text">
+                <strong>走势解读：</strong>该图表展示了恒瑞医药在分析周期内的收盘价变化趋势。从图中可以观察到股价的整体波动情况，识别关键的价格支撑位和压力位。通过分析收盘价的变化，可以帮助投资者判断股票的短期和中期走势方向。
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📉 日收益率分布图</h2>
+            <img src="return_distribution.png" alt="日收益率分布" class="chart-img">
+            <div class="analysis-text">
+                <strong>分布特征：</strong>该图显示了日收益率的频数分布。红色虚线为收益率均值，绿色虚线为±1倍标准差范围。从分布形态来看，收益率呈现近似正态分布特征，大部分收益集中在均值附近。标准差反映了股价的波动性，标准差越大表示风险越高。
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📊 RSI相对强弱指标</h2>
+            <img src="rsi_plot.png" alt="RSI指标图" class="chart-img">
+            <div class="analysis-text">
+                <strong>RSI解读：</strong>RSI（相对强弱指数）是衡量股价强弱的技术指标，取值范围0-100。<span class="indicator-box bearish">超买区(&gt;70)</span>表示股价可能回调，<span class="indicator-box bullish">超卖区(&lt;30)</span>表示股价可能反弹。红色填充区域为超买区间，绿色填充区域为超卖区间。投资者可以根据RSI的位置判断买卖时机。
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📊 MACD指标图</h2>
+            <img src="macd_plot.png" alt="MACD指标图" class="chart-img">
+            <div class="analysis-text">
+                <strong>MACD解读：</strong>MACD（指数平滑异同移动平均线）由蓝线(MACD)、红线(Signal信号线)和柱状图(Histogram)组成。当MACD线从下方穿过信号线时形成<span class="indicator-box bullish">金叉</span>，是买入信号；当MACD线从上方穿过信号线时形成<span class="indicator-box bearish">死叉</span>，是卖出信号。柱状图显示了MACD与信号线的差值，正值表示多头力量强，负值表示空头力量强。
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📊 布林带指标图</h2>
+            <img src="bollinger_plot.png" alt="布林带指标图" class="chart-img">
+            <div class="analysis-text">
+                <strong>布林带解读：</strong>布林带由三条线组成——红色上轨、橙色中轨（20日均线）和绿色下轨。上轨和下轨是中轨加减2倍标准差形成的。当股价接近或突破上轨时，可能处于超买状态；当股价接近或突破下轨时，可能处于超卖状态。灰色区域为布林带通道，通道宽度反映了股价的波动性。
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📊 K线图</h2>
+            <img src="kline_plot.png" alt="K线图" class="chart-img">
+            <div class="analysis-text">
+                <strong>K线解读：</strong>K线图展示了每个交易日的开盘价、收盘价、最高价和最低价。红色K线表示收盘价高于开盘价（上涨），绿色K线表示收盘价低于开盘价（下跌）。实体部分为开盘价和收盘价之间的价差，上下影线分别代表最高价和最低价。K线组合形态可以帮助投资者判断市场多空力量的变化。
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📊 KDJ指标图</h2>
+            <img src="kdj_plot.png" alt="KDJ指标图" class="chart-img">
+            <div class="analysis-text">
+                <strong>KDJ解读：</strong>KDJ是一种常用的技术分析指标，由K线(蓝色)、D线(红色)和J线(绿色)组成。图中标注了三条分界线：<span class="indicator-box bullish">超卖线(20)</span>、<span class="indicator-box neutral">中线(50)</span>和<span class="indicator-box bearish">超买线(80)</span>。当K、D、J值低于20时为超卖区域，高于80时为超买区域。红色填充为超买区间，绿色填充为超卖区间。KDJ金叉（K线从下向上穿过D线）是买入信号，死叉（K线从上向下穿过D线）是卖出信号。
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 股票分析系统 | 数据来源：Tushare</p>
+        </div>
+    </div>
+</body>
+</html>
