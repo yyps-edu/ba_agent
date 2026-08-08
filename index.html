@@ -183,6 +183,7 @@ function kdjCalc(ohlc, n) {
 function val(id) { return parseFloat(document.getElementById(id).value); }
 function catAxis(dates) { return { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(5) } }; }
 function tip() { return { trigger: 'axis', axisPointer: { type: 'cross' } }; }
+const priceFmt = { axisLabel: { formatter: v => Number(v).toFixed(2) } };
 
 // ---------- 渲染 ----------
 function render() {
@@ -218,7 +219,7 @@ function render() {
       { type: 'category', data: dates, gridIndex: 1, axisLabel: { formatter: v => v.slice(5) } }
     ],
     yAxis: [
-      { scale: true, gridIndex: 0, splitNumber: 4 },
+      { scale: true, gridIndex: 0, splitNumber: 4, ...priceFmt },
       { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { formatter: v => v >= 10000 ? (v / 10000).toFixed(0) + '万' : v } }
     ],
     series: [
@@ -232,7 +233,7 @@ function render() {
     tooltip: tip(),
     legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
-    xAxis: catAxis(dates), yAxis: { scale: true },
+    xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
     series: [
       { name: 'MA' + pMa, type: 'line', data: ma(close, pMa), smooth: true, showSymbol: false, lineStyle: { width: 2 } },
       { name: 'MA' + pMa2, type: 'line', data: ma(close, pMa2), smooth: true, showSymbol: false, lineStyle: { width: 2 } }
@@ -243,7 +244,7 @@ function render() {
   charts.close.setOption({
     tooltip: tip(), legend: { data: ['收盘价'], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
-    xAxis: catAxis(dates), yAxis: { scale: true, min: Math.min(...close) * 0.98, max: Math.max(...close) * 1.02 },
+    xAxis: catAxis(dates), yAxis: { scale: true, min: Math.min(...close) * 0.98, max: Math.max(...close) * 1.02, ...priceFmt },
     series: [{ name: '收盘价', type: 'line', data: close, smooth: true, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, areaStyle: { opacity: 0.08 } }]
   }, true);
 
@@ -286,7 +287,7 @@ function render() {
   charts.bb.setOption({
     tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
-    xAxis: catAxis(dates), yAxis: { scale: true },
+    xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
     series: [
       { name: '收盘价', type: 'line', data: close, showSymbol: false, lineStyle: { color: '#667eea', width: 2 } },
       { name: '上轨', type: 'line', data: b.up, showSymbol: false, lineStyle: { color: '#e74c3c', type: 'dashed' } },
