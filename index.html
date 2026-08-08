@@ -14,13 +14,6 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .stock-tabs { display: flex; gap: 10px; }
 .stock-tab { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: #fff; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 15px; transition: all .2s; }
 .stock-tab.active { background: #fff; color: #667eea; font-weight: bold; }
-.controls { background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-.controls h3 { color: #667eea; margin-bottom: 16px; font-size: 17px; }
-.ctrl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px 28px; }
-.ctrl-item { display: flex; flex-direction: column; gap: 6px; }
-.ctrl-item label { font-size: 13px; color: #666; display: flex; justify-content: space-between; }
-.ctrl-item label span { color: #667eea; font-weight: bold; }
-.ctrl-item input[type=range] { width: 100%; accent-color: #667eea; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .stat-card { background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
 .stat-card .label { color: #888; font-size: 13px; margin-bottom: 6px; }
@@ -29,10 +22,15 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .chart-box { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
 .chart-box.full { grid-column: 1 / -1; }
 .chart-title { font-size: 15px; color: #333; margin-bottom: 8px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
-.chart { width: 100%; height: 380px; }
-.chart.tall { height: 440px; }
+.params-bar { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; padding: 8px 12px; background: #f8f9ff; border-radius: 8px; }
+.param { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
+.param label { white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+.param label span { color: #667eea; font-weight: bold; min-width: 28px; text-align: center; }
+.param input[type=range] { width: 110px; accent-color: #667eea; cursor: pointer; }
+.chart { width: 100%; height: 360px; }
+.chart.tall { height: 420px; }
 .footer { text-align: center; padding: 24px; color: #999; font-size: 13px; }
-@media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } .param input[type=range] { width: 90px; } }
 </style>
 </head>
 <body>
@@ -44,30 +42,65 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 
   <div class="stats-grid" id="stats"></div>
 
-  <div class="controls">
-    <h3>⚙️ 参数调节（实时刷新）</h3>
-    <div class="ctrl-grid">
-      <div class="ctrl-item"><label>MA 周期 <span id="v-ma">5</span></label><input type="range" id="p-ma" min="2" max="60" value="5"></div>
-      <div class="ctrl-item"><label>MA2 周期 <span id="v-ma2">15</span></label><input type="range" id="p-ma2" min="2" max="60" value="15"></div>
-      <div class="ctrl-item"><label>RSI 周期 <span id="v-rsi">14</span></label><input type="range" id="p-rsi" min="2" max="40" value="14"></div>
-      <div class="ctrl-item"><label>MACD 快线 <span id="v-fast">12</span></label><input type="range" id="p-fast" min="2" max="30" value="12"></div>
-      <div class="ctrl-item"><label>MACD 慢线 <span id="v-slow">26</span></label><input type="range" id="p-slow" min="3" max="50" value="26"></div>
-      <div class="ctrl-item"><label>MACD 信号 <span id="v-sig">9</span></label><input type="range" id="p-sig" min="2" max="30" value="9"></div>
-      <div class="ctrl-item"><label>布林带 周期 <span id="v-bb">20</span></label><input type="range" id="p-bb" min="5" max="40" value="20"></div>
-      <div class="ctrl-item"><label>布林带 σ倍数 <span id="v-bbm">2.0</span></label><input type="range" id="p-bbm" min="1" max="3" step="0.1" value="2"></div>
-      <div class="ctrl-item"><label>KDJ 周期 <span id="v-kdj">9</span></label><input type="range" id="p-kdj" min="3" max="30" value="9"></div>
-    </div>
-  </div>
-
   <div class="charts-grid">
-    <div class="chart-box full"><div class="chart-title">K线图 + 均线（可缩放拖动）</div><div id="c-kline" class="chart tall"></div></div>
-    <div class="chart-box full"><div class="chart-title">成交量</div><div id="c-vol" class="chart"></div></div>
-    <div class="chart-box"><div class="chart-title">收盘价走势</div><div id="c-close" class="chart"></div></div>
-    <div class="chart-box"><div class="chart-title">日收益率分布</div><div id="c-dist" class="chart"></div></div>
-    <div class="chart-box"><div class="chart-title">RSI 指标</div><div id="c-rsi" class="chart"></div></div>
-    <div class="chart-box"><div class="chart-title">MACD 指标</div><div id="c-macd" class="chart"></div></div>
-    <div class="chart-box"><div class="chart-title">布林带</div><div id="c-bb" class="chart"></div></div>
-    <div class="chart-box"><div class="chart-title">KDJ 指标</div><div id="c-kdj" class="chart"></div></div>
+    <div class="chart-box full">
+      <div class="chart-title">K线图 + 均线（可缩放拖动）</div>
+      <div class="params-bar">
+        <div class="param"><label>MA 周期 <span id="v-ma">5</span></label><input type="range" id="p-ma" min="2" max="60" value="5"></div>
+        <div class="param"><label>MA2 周期 <span id="v-ma2">15</span></label><input type="range" id="p-ma2" min="2" max="60" value="15"></div>
+      </div>
+      <div id="c-kline" class="chart tall"></div>
+    </div>
+
+    <div class="chart-box full">
+      <div class="chart-title">成交量</div>
+      <div id="c-vol" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">收盘价走势</div>
+      <div id="c-close" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">日收益率分布</div>
+      <div id="c-dist" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">RSI 指标</div>
+      <div class="params-bar">
+        <div class="param"><label>RSI 周期 <span id="v-rsi">14</span></label><input type="range" id="p-rsi" min="2" max="40" value="14"></div>
+      </div>
+      <div id="c-rsi" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">MACD 指标</div>
+      <div class="params-bar">
+        <div class="param"><label>快线 <span id="v-fast">12</span></label><input type="range" id="p-fast" min="2" max="30" value="12"></div>
+        <div class="param"><label>慢线 <span id="v-slow">26</span></label><input type="range" id="p-slow" min="3" max="50" value="26"></div>
+        <div class="param"><label>信号 <span id="v-sig">9</span></label><input type="range" id="p-sig" min="2" max="30" value="9"></div>
+      </div>
+      <div id="c-macd" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">布林带</div>
+      <div class="params-bar">
+        <div class="param"><label>周期 <span id="v-bb">20</span></label><input type="range" id="p-bb" min="5" max="40" value="20"></div>
+        <div class="param"><label>σ倍数 <span id="v-bbm">2.0</span></label><input type="range" id="p-bbm" min="1" max="3" step="0.1" value="2"></div>
+      </div>
+      <div id="c-bb" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">KDJ 指标</div>
+      <div class="params-bar">
+        <div class="param"><label>KDJ 周期 <span id="v-kdj">9</span></label><input type="range" id="p-kdj" min="3" max="30" value="9"></div>
+      </div>
+      <div id="c-kdj" class="chart"></div>
+    </div>
   </div>
 
   <div class="footer">© 2026 股票分析交互看板 | 数据来源：Tushare | 基于 ECharts</div>
