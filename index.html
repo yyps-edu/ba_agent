@@ -205,8 +205,8 @@ function render() {
 
   // K线 + 均线
   charts.kline.setOption({
-    tooltip: tip(), legend: { data: ['日K', 'MA' + pMa, 'MA' + pMa2], top: 0 },
-    grid: { left: '6%', right: '4%', bottom: '14%' },
+    tooltip: tip(), legend: { data: ['日K', 'MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '6%', right: '4%', bottom: '14%', top: 30 },
     xAxis: catAxis(dates), yAxis: { scale: true },
     dataZoom: [{ type: 'inside', start: 55, end: 100 }],
     series: [
@@ -218,7 +218,8 @@ function render() {
 
   // 成交量
   charts.vol.setOption({
-    tooltip: tip(), grid: { left: '6%', right: '4%', bottom: '14%' },
+    tooltip: tip(), legend: { data: ['成交量'], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '6%', right: '4%', bottom: '14%', top: 30 },
     xAxis: catAxis(dates), yAxis: { scale: true },
     dataZoom: [{ type: 'inside', start: 55, end: 100 }],
     series: [{ name: '成交量', type: 'bar', data: vol, itemStyle: { color: (p) => ohlc[p.dataIndex][1] >= ohlc[p.dataIndex][0] ? '#ec0000' : '#00da3c' } }]
@@ -226,7 +227,8 @@ function render() {
 
   // 收盘价
   charts.close.setOption({
-    tooltip: tip(), grid: { left: '7%', right: '4%', bottom: '14%' },
+    tooltip: tip(), legend: { data: ['收盘价'], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
     xAxis: catAxis(dates), yAxis: { scale: true, min: Math.min(...close) * 0.98, max: Math.max(...close) * 1.02 },
     series: [{ name: '收盘价', type: 'line', data: close, smooth: true, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, areaStyle: { opacity: 0.08 } }]
   }, true);
@@ -237,15 +239,17 @@ function render() {
   for (let i = 0; i < bins; i++) { xData.push((lo + i * w).toFixed(2)); }
   pct.forEach(v => { hist[Math.min(bins - 1, Math.floor((v - lo) / w))]++; });
   charts.dist.setOption({
-    tooltip: tip(), grid: { left: '7%', right: '4%', bottom: '14%' },
+    tooltip: tip(), legend: { data: ['频数'], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
     xAxis: { type: 'category', data: xData, name: '涨跌%' }, yAxis: { name: '频数' },
-    series: [{ type: 'bar', data: hist, itemStyle: { color: '#667eea' } }]
+    series: [{ name: '频数', type: 'bar', data: hist, itemStyle: { color: '#667eea' } }]
   }, true);
 
   // RSI
   const r = rsiCalc(close, pRsi);
   charts.rsi.setOption({
-    tooltip: tip(), grid: { left: '7%', right: '4%', bottom: '14%' },
+    tooltip: tip(), legend: { data: ['RSI'], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
     xAxis: catAxis(dates), yAxis: { min: 0, max: 100 },
     series: [{ name: 'RSI', type: 'line', data: r, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 70, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买70' } }, { yAxis: 30, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖30' } }] } }]
   }, true);
@@ -253,8 +257,8 @@ function render() {
   // MACD
   const m = macdCalc(close, pFast, pSlow, pSig);
   charts.macd.setOption({
-    tooltip: tip(), legend: { data: ['DIF', 'DEA'], top: 0 },
-    grid: { left: '7%', right: '4%', bottom: '14%' },
+    tooltip: tip(), legend: { data: ['DIF', 'DEA', 'MACD柱'], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
     xAxis: catAxis(dates), yAxis: { scale: true },
     series: [
       { name: 'DIF', type: 'line', data: m.dif, showSymbol: false, lineStyle: { color: '#3498db', width: 1.5 } },
@@ -266,8 +270,8 @@ function render() {
   // 布林带
   const b = boll(close, pBb, pBbm);
   charts.bb.setOption({
-    tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0 },
-    grid: { left: '7%', right: '4%', bottom: '14%' },
+    tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
     xAxis: catAxis(dates), yAxis: { scale: true },
     series: [
       { name: '收盘价', type: 'line', data: close, showSymbol: false, lineStyle: { color: '#667eea', width: 2 } },
@@ -280,8 +284,8 @@ function render() {
   // KDJ
   const kd = kdjCalc(ohlc, pKdj);
   charts.kdj.setOption({
-    tooltip: tip(), legend: { data: ['K', 'D', 'J'], top: 0 },
-    grid: { left: '7%', right: '4%', bottom: '14%' },
+    tooltip: tip(), legend: { data: ['K', 'D', 'J'], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
     xAxis: catAxis(dates), yAxis: { scale: true },
     series: [
       { name: 'K', type: 'line', data: kd.k, showSymbol: false, lineStyle: { color: '#3498db', width: 1.5 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 80, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买80' } }, { yAxis: 20, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖20' } }] } },
