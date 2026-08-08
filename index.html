@@ -16,9 +16,9 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .stat-card { background: #fff; padding: 16px 10px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
 .stat-card .label { color: #888; font-size: 13px; margin-bottom: 6px; white-space: nowrap; }
 .stat-card .value { font-size: 16px; font-weight: bold; color: #667eea; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.chart-box { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-.chart-box.full { grid-column: 1 / -1; }
+.charts-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+.chart-box { flex: 0 0 calc(50% - 10px); background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; min-width: 0; box-sizing: border-box; }
+.chart-box.full { flex: 0 0 100%; }
 .chart-title { font-size: 15px; color: #333; margin-bottom: 8px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
 .params-bar { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; padding: 8px 12px; background: #f8f9ff; border-radius: 8px; }
 .param { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
@@ -42,12 +42,17 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 
   <div class="charts-grid">
     <div class="chart-box full">
-      <div class="chart-title">K线图</div>
-      <div id="c-kline" class="chart tall"></div>
+      <div class="chart-title">收盘价</div>
+      <div id="c-close" class="chart"></div>
     </div>
 
     <div class="chart-box full">
-      <div class="chart-title">移动平均线</div>
+      <div class="chart-title">日涨跌幅度</div>
+      <div id="c-dist" class="chart"></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">均线</div>
       <div class="params-bar">
         <div class="param"><label>MA 周期 <span id="v-ma">5</span></label><input type="range" id="p-ma" min="2" max="60" value="5"></div>
         <div class="param"><label>MA2 周期 <span id="v-ma2">15</span></label><input type="range" id="p-ma2" min="2" max="60" value="15"></div>
@@ -56,17 +61,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
     </div>
 
     <div class="chart-box">
-      <div class="chart-title">收盘价走势</div>
-      <div id="c-close" class="chart"></div>
-    </div>
-
-    <div class="chart-box">
-      <div class="chart-title">日收益率分布</div>
-      <div id="c-dist" class="chart"></div>
-    </div>
-
-    <div class="chart-box">
-      <div class="chart-title">RSI 指标</div>
+      <div class="chart-title">RSI</div>
       <div class="params-bar">
         <div class="param"><label>RSI 周期 <span id="v-rsi">14</span></label><input type="range" id="p-rsi" min="2" max="40" value="14"></div>
       </div>
@@ -74,7 +69,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
     </div>
 
     <div class="chart-box">
-      <div class="chart-title">MACD 指标</div>
+      <div class="chart-title">MACD</div>
       <div class="params-bar">
         <div class="param"><label>快线 <span id="v-fast">12</span></label><input type="range" id="p-fast" min="2" max="30" value="12"></div>
         <div class="param"><label>慢线 <span id="v-slow">26</span></label><input type="range" id="p-slow" min="3" max="50" value="26"></div>
@@ -93,11 +88,16 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
     </div>
 
     <div class="chart-box">
-      <div class="chart-title">KDJ 指标</div>
+      <div class="chart-title">KDJ</div>
       <div class="params-bar">
         <div class="param"><label>KDJ 周期 <span id="v-kdj">9</span></label><input type="range" id="p-kdj" min="3" max="30" value="9"></div>
       </div>
       <div id="c-kdj" class="chart"></div>
+    </div>
+
+    <div class="chart-box full">
+      <div class="chart-title">K线</div>
+      <div id="c-kline" class="chart tall"></div>
     </div>
   </div>
 
@@ -184,6 +184,7 @@ function val(id) { return parseFloat(document.getElementById(id).value); }
 function catAxis(dates) { return { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(5) } }; }
 function tip() { return { trigger: 'axis', axisPointer: { type: 'cross' } }; }
 const priceFmt = { axisLabel: { formatter: v => Number(v).toFixed(2) } };
+const g = { left: 60, right: 40, bottom: 56, top: 30 };
 
 // ---------- 渲染 ----------
 function render() {
@@ -233,7 +234,7 @@ function render() {
   charts.ma.setOption({
     tooltip: tip(),
     legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
+    grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
     series: [
       { name: 'MA' + pMa, type: 'line', data: ma(close, pMa), smooth: true, showSymbol: false, lineStyle: { width: 2 } },
@@ -244,7 +245,7 @@ function render() {
   // 收盘价
   charts.close.setOption({
     tooltip: tip(), legend: { data: ['收盘价'], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
+    grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, min: Math.min(...close) * 0.98, max: Math.max(...close) * 1.02, ...priceFmt },
     series: [{ name: '收盘价', type: 'line', data: close, smooth: true, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, areaStyle: { opacity: 0.08 } }]
   }, true);
@@ -253,7 +254,7 @@ function render() {
   charts.dist.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, formatter: params => { const p=params[0]; return `${p.axisValue}<br/>涨跌: ${p.value.toFixed(2)}%`; } },
     legend: { data: ['日涨跌%'], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
+    grid: g,
     xAxis: catAxis(dates),
     yAxis: { name: '涨跌%', axisLabel: { formatter: v => v.toFixed(1) + '%' } },
     series: [
@@ -267,7 +268,7 @@ function render() {
   const r = rsiCalc(close, pRsi);
   charts.rsi.setOption({
     tooltip: tip(), legend: { data: ['RSI'], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
+    grid: g,
     xAxis: catAxis(dates), yAxis: { min: 0, max: 100 },
     series: [{ name: 'RSI', type: 'line', data: r, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 70, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买70' } }, { yAxis: 30, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖30' } }] } }]
   }, true);
@@ -276,7 +277,7 @@ function render() {
   const m = macdCalc(close, pFast, pSlow, pSig);
   charts.macd.setOption({
     tooltip: tip(), legend: { data: ['DIF', 'DEA', 'MACD柱'], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
+    grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true },
     series: [
       { name: 'DIF', type: 'line', data: m.dif, showSymbol: false, lineStyle: { color: '#3498db', width: 1.5 } },
@@ -289,7 +290,7 @@ function render() {
   const b = boll(close, pBb, pBbm);
   charts.bb.setOption({
     tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
+    grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
     series: [
       { name: '收盘价', type: 'line', data: close, showSymbol: false, lineStyle: { color: '#667eea', width: 2 } },
@@ -303,7 +304,7 @@ function render() {
   const kd = kdjCalc(ohlc, pKdj);
   charts.kdj.setOption({
     tooltip: tip(), legend: { data: ['K', 'D', 'J'], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
+    grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true },
     series: [
       { name: 'K', type: 'line', data: kd.k, showSymbol: false, lineStyle: { color: '#3498db', width: 1.5 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 80, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买80' } }, { yAxis: 20, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖20' } }] } },
