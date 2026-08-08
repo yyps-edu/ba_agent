@@ -34,7 +34,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 <body>
 <div class="container">
   <div class="header">
-    <h1>📈 股票分析交互看板</h1>
+    <h1>📈 股票交易指标看板</h1>
     <div class="stock-select"><select id="stockSelect"></select></div>
   </div>
 
@@ -42,17 +42,17 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 
   <div class="charts-grid">
     <div class="chart-box full">
-      <div class="chart-title">K线图 + 均线（可缩放拖动）</div>
-      <div class="params-bar">
-        <div class="param"><label>MA 周期 <span id="v-ma">5</span></label><input type="range" id="p-ma" min="2" max="60" value="5"></div>
-        <div class="param"><label>MA2 周期 <span id="v-ma2">15</span></label><input type="range" id="p-ma2" min="2" max="60" value="15"></div>
-      </div>
+      <div class="chart-title">K线图 + 成交量</div>
       <div id="c-kline" class="chart tall"></div>
     </div>
 
     <div class="chart-box full">
-      <div class="chart-title">成交量</div>
-      <div id="c-vol" class="chart"></div>
+      <div class="chart-title">移动平均线</div>
+      <div class="params-bar">
+        <div class="param"><label>MA 周期 <span id="v-ma">5</span></label><input type="range" id="p-ma" min="2" max="60" value="5"></div>
+        <div class="param"><label>MA2 周期 <span id="v-ma2">15</span></label><input type="range" id="p-ma2" min="2" max="60" value="15"></div>
+      </div>
+      <div id="c-ma" class="chart"></div>
     </div>
 
     <div class="chart-box">
@@ -196,33 +196,47 @@ function render() {
   const mean = pct.reduce((a, b) => a + b, 0) / pct.length;
   const std = Math.sqrt(pct.reduce((a, b) => a + (b - mean) ** 2, 0) / pct.length);
   const stats = [
-    ['股票代码', s.code], ['数据天数', dates.length], ['区间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
+    ['股票代码', s.code], ['数据天数', dates.length], ['时间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
     ['最新收盘', close[close.length - 1].toFixed(2)], ['日均涨跌(%)', mean.toFixed(4)],
     ['波动率(%)', std.toFixed(4)], ['最大涨幅(%)', Math.max(...pct).toFixed(2)], ['最大跌幅(%)', Math.min(...pct).toFixed(2)]
   ];
   document.getElementById('stats').innerHTML = stats.map(([l, v]) =>
     `<div class="stat-card"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
 
-  // K线 + 均线
+  // K线 + 成交量（同一图，上下双 grid 布局）
   charts.kline.setOption({
-    tooltip: tip(), legend: { data: ['日K', 'MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '6%', right: '4%', bottom: '14%', top: 30 },
-    xAxis: catAxis(dates), yAxis: { scale: true },
-    dataZoom: [{ type: 'inside', start: 55, end: 100 }],
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    legend: { data: ['日K', '成交量'], top: 0, textStyle: { fontSize: 12 } },
+    axisPointer: { link: [{ xAxisIndex: 'all' }] },
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 55, end: 100 }],
+    grid: [
+      { left: '6%', right: '4%', top: 30, bottom: '38%' },
+      { left: '6%', right: '4%', top: '70%', bottom: 30 }
+    ],
+    xAxis: [
+      { type: 'category', data: dates, gridIndex: 0, axisLabel: { show: false }, axisTick: { show: false } },
+      { type: 'category', data: dates, gridIndex: 1, axisLabel: { formatter: v => v.slice(5) } }
+    ],
+    yAxis: [
+      { scale: true, gridIndex: 0, splitNumber: 4 },
+      { scale: true, gridIndex: 1, splitNumber: 2, axisLabel: { formatter: v => v >= 10000 ? (v / 10000).toFixed(0) + '万' : v } }
+    ],
     series: [
-      { name: '日K', type: 'candlestick', data: ohlc, itemStyle: { color: '#ec0000', color0: '#00da3c', borderColor: '#8A0000', borderColor0: '#008F28' } },
-      { name: 'MA' + pMa, type: 'line', data: ma(close, pMa), smooth: true, showSymbol: false, lineStyle: { width: 1.5 } },
-      { name: 'MA' + pMa2, type: 'line', data: ma(close, pMa2), smooth: true, showSymbol: false, lineStyle: { width: 1.5 } }
+      { name: '日K', type: 'candlestick', xAxisIndex: 0, yAxisIndex: 0, data: ohlc, itemStyle: { color: '#ec0000', color0: '#00da3c', borderColor: '#8A0000', borderColor0: '#008F28' } },
+      { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vol, itemStyle: { color: (p) => ohlc[p.dataIndex][1] >= ohlc[p.dataIndex][0] ? '#ec0000' : '#00da3c' } }
     ]
   }, true);
 
-  // 成交量
-  charts.vol.setOption({
-    tooltip: tip(), legend: { data: ['成交量'], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: '6%', right: '4%', bottom: '14%', top: 30 },
+  // 移动平均线（独立图）
+  charts.ma.setOption({
+    tooltip: tip(),
+    legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
+    grid: { left: '7%', right: '4%', bottom: '14%', top: 30 },
     xAxis: catAxis(dates), yAxis: { scale: true },
-    dataZoom: [{ type: 'inside', start: 55, end: 100 }],
-    series: [{ name: '成交量', type: 'bar', data: vol, itemStyle: { color: (p) => ohlc[p.dataIndex][1] >= ohlc[p.dataIndex][0] ? '#ec0000' : '#00da3c' } }]
+    series: [
+      { name: 'MA' + pMa, type: 'line', data: ma(close, pMa), smooth: true, showSymbol: false, lineStyle: { width: 2 } },
+      { name: 'MA' + pMa2, type: 'line', data: ma(close, pMa2), smooth: true, showSymbol: false, lineStyle: { width: 2 } }
+    ]
   }, true);
 
   // 收盘价
@@ -297,7 +311,7 @@ function render() {
 
 // ---------- 初始化 ----------
 function init() {
-  ['kline', 'vol', 'close', 'dist', 'rsi', 'macd', 'bb', 'kdj'].forEach(k => {
+  ['kline', 'ma', 'close', 'dist', 'rsi', 'macd', 'bb', 'kdj'].forEach(k => {
     charts[k] = echarts.init(document.getElementById('c-' + k));
   });
   const sel = document.getElementById('stockSelect');
