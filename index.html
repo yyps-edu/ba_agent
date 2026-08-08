@@ -11,9 +11,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
 .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 24px 30px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .header h1 { font-size: 26px; }
-.stock-tabs { display: flex; gap: 10px; }
-.stock-tab { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: #fff; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 15px; transition: all .2s; }
-.stock-tab.active { background: #fff; color: #667eea; font-weight: bold; }
+.stock-select select { background: rgba(255,255,255,0.95); color: #667eea; border: 2px solid rgba(255,255,255,0.5); padding: 8px 24px; border-radius: 20px; font-size: 15px; font-weight: bold; cursor: pointer; outline: none; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .stat-card { background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
 .stat-card .label { color: #888; font-size: 13px; margin-bottom: 6px; }
@@ -37,7 +35,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 <div class="container">
   <div class="header">
     <h1>📈 股票分析交互看板</h1>
-    <div class="stock-tabs" id="tabs"></div>
+    <div class="stock-select"><select id="stockSelect"></select></div>
   </div>
 
   <div class="stats-grid" id="stats"></div>
@@ -298,19 +296,15 @@ function init() {
   ['kline', 'vol', 'close', 'dist', 'rsi', 'macd', 'bb', 'kdj'].forEach(k => {
     charts[k] = echarts.init(document.getElementById('c-' + k));
   });
-  const tabs = document.getElementById('tabs');
+  const sel = document.getElementById('stockSelect');
   Object.keys(DATA).forEach(name => {
-    const b = document.createElement('button');
-    b.className = 'stock-tab' + (name === curStock ? ' active' : '');
-    b.textContent = name + ' (' + DATA[name].code + ')';
-    b.onclick = () => {
-      curStock = name;
-      document.querySelectorAll('.stock-tab').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      render();
-    };
-    tabs.appendChild(b);
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name + ' (' + DATA[name].code + ')';
+    if (name === curStock) opt.selected = true;
+    sel.appendChild(opt);
   });
+  sel.onchange = () => { curStock = sel.value; render(); };
   const ids = ['ma', 'ma2', 'rsi', 'fast', 'slow', 'sig', 'bb', 'bbm', 'kdj'];
   ids.forEach(id => {
     const el = document.getElementById('p-' + id), lbl = document.getElementById('v-' + id);
