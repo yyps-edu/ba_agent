@@ -12,10 +12,10 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 24px 30px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .header h1 { font-size: 26px; }
 .stock-select select { background: #fff; color: #333; border: 2px solid #dcdfe6; padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px; }
-.stat-card { background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
-.stat-card .label { color: #888; font-size: 13px; margin-bottom: 6px; }
-.stat-card .value { font-size: 18px; font-weight: bold; color: #667eea; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.stat-card { background: #fff; padding: 16px 10px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
+.stat-card .label { color: #888; font-size: 12px; margin-bottom: 6px; }
+.stat-card .value { font-size: 15px; font-weight: bold; color: #667eea; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px; }
 .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .chart-box { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
 .chart-box.full { grid-column: 1 / -1; }
@@ -196,7 +196,7 @@ function render() {
   const mean = pct.reduce((a, b) => a + b, 0) / pct.length;
   const std = Math.sqrt(pct.reduce((a, b) => a + (b - mean) ** 2, 0) / pct.length);
   const stats = [
-    ['股票代码', s.code], ['数据天数', dates.length], ['区间', dates[0].slice(5).replace('-','/') + '-' + dates[dates.length - 1].slice(5).replace('-','/')],
+    ['股票代码', s.code], ['数据天数', dates.length], ['区间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
     ['最新收盘', close[close.length - 1].toFixed(2)], ['日均涨跌(%)', mean.toFixed(4)],
     ['波动率(%)', std.toFixed(4)], ['最大涨幅(%)', Math.max(...pct).toFixed(2)], ['最大跌幅(%)', Math.min(...pct).toFixed(2)]
   ];
