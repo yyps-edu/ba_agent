@@ -36,8 +36,9 @@ STOCKS = [
     {"name": "恒瑞医药", "symbol": "600276"},
     {"name": "平安银行", "symbol": "000001"},
 ]
-START = "20250601"
-END   = "20260703"
+# 近 10 年：2016-08-01 ~ 2026-08-10（今天）
+START = "20160801"
+END   = "20260810"
 
 # ========== 第一层：彻底禁用代理 ==========
 PROXY_VARS = [
@@ -377,7 +378,7 @@ def plot_kdj(df, stock_name):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--fetch-only", action="store_true", help="只拉取保存数据，不计算指标不绘图")
-    ap.add_argument("--stock", default="恒瑞医药", choices=[s["name"] for s in STOCKS], help="指定用于绘图的股票（默认恒瑞医药）")
+    ap.add_argument("--stock", default="平安银行", choices=[s["name"] for s in STOCKS], help="指定用于绘图的股票（默认平安银行）")
     args = ap.parse_args()
 
     print("=" * 64)
