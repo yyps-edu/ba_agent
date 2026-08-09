@@ -13,11 +13,13 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .header h1 { font-size: 26px; }
 .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .stock-select select { background: #fff; color: #333; border: 2px solid #dcdfe6; padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
-.adj-switch { display: inline-flex; background: rgba(255,255,255,0.2); padding: 3px; border-radius: 8px; gap: 2px; }
-.adj-switch label { position: relative; display: inline-block; cursor: pointer; }
+.adj-switch { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-size: 14px; font-weight: 500; }
+.adj-switch .switch-label { white-space: nowrap; }
 .adj-switch input { position: absolute; opacity: 0; pointer-events: none; }
-.adj-switch span { display: inline-block; padding: 7px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; white-space: nowrap; color: rgba(255,255,255,0.85); transition: all 0.2s ease; }
-.adj-switch input:checked + span { background: #fff; color: #667eea; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+.adj-switch .slider { position: relative; display: inline-block; width: 46px; height: 24px; background: rgba(255,255,255,0.35); border-radius: 999px; cursor: pointer; transition: background 0.25s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15); }
+.adj-switch .slider::after { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.25s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.adj-switch input:checked + .slider { background: #2ecc71; }
+.adj-switch input:checked + .slider::after { transform: translateX(22px); }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
 .stat-card { background: #fff; padding: 16px 10px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
 .stat-card .label { color: #888; font-size: 13px; margin-bottom: 6px; white-space: nowrap; }
@@ -42,9 +44,9 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
   <div class="header">
     <h1>📈 股票交易指标看板</h1>
     <div class="header-right">
-      <div class="adj-switch" role="radiogroup" aria-label="复权类型">
-        <label><input type="radio" name="adj" value="nofq" checked><span>不复权</span></label>
-        <label><input type="radio" name="adj" value="qfq"><span>前复权</span></label>
+      <div class="adj-switch" role="switch" aria-label="前复权开关">
+        <span class="switch-label">前复权</span>
+        <label><input type="checkbox" id="adjToggle" value="qfq"><span class="slider"></span></label>
       </div>
       <div class="stock-select"><select id="stockSelect"></select></div>
     </div>
@@ -120,7 +122,6 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 <script>
 let curStock = Object.keys(DATA)[0];
 let curAdj = 'nofq';
-const ADJ_LABEL = { nofq: '不复权', qfq: '前复权' };
 const charts = {};
 
 // ---------- 技术指标计算 ----------
@@ -208,13 +209,12 @@ function render() {
   const pMa = val('p-ma'), pMa2 = val('p-ma2'), pRsi = val('p-rsi');
   const pFast = val('p-fast'), pSlow = val('p-slow'), pSig = val('p-sig');
   const pBb = val('p-bb'), pBbm = val('p-bbm'), pKdj = val('p-kdj');
-  const adjTag = ADJ_LABEL[curAdj];
 
-  // 统计卡片
+  // 统计卡片（不复权/前复权的代码、天数、时间等均相同，去除后缀/前缀）
   const mean = pct.reduce((a, b) => a + b, 0) / pct.length;
   const std = Math.sqrt(pct.reduce((a, b) => a + (b - mean) ** 2, 0) / pct.length);
   const stats = [
-    ['股票代码', meta.code + ' · ' + adjTag], [adjTag + '数据天数', dates.length], ['时间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
+    ['股票代码', meta.code], ['数据天数', dates.length], ['时间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
     ['最新收盘', close[close.length - 1].toFixed(2)], ['日均涨跌(%)', mean.toFixed(4)],
     ['波动率(%)', std.toFixed(4)], ['最大涨幅(%)', Math.max(...pct).toFixed(2)], ['最大跌幅(%)', Math.min(...pct).toFixed(2)]
   ];
@@ -258,12 +258,41 @@ function render() {
     ]
   }, true);
 
-  // 收盘价
+  // 收盘价：不复权 + 前复权 双折线对比（日期对齐，不受 curAdj 影响）
+  const blockN = meta.nofq, blockQ = meta.qfq;
+  const mapN = Object.fromEntries(blockN.dates.map((d, i) => [d, blockN.close[i]]));
+  const shareDates = blockQ.dates.filter(d => Object.prototype.hasOwnProperty.call(mapN, d));
+  const closeN = shareDates.map(d => mapN[d]);
+  const closeQ = shareDates.map(d => blockQ.close[blockQ.dates.indexOf(d)]);
+  const allClose = closeN.concat(closeQ);
+  const firstN = closeN[0], firstQ = closeQ[0], lastN = closeN[closeN.length - 1], lastQ = closeQ[closeQ.length - 1];
+  const avgGap = closeN.reduce((a, _, i) => a + Math.abs(closeQ[i] - closeN[i]), 0) / closeN.length;
+  const latestPct = ((lastQ - lastN) / (lastN || 1) * 100).toFixed(3);
   charts.close.setOption({
-    tooltip: tip(), legend: { data: ['收盘价'], top: 0, textStyle: { fontSize: 12 } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' },
+      formatter: params => {
+        const rows = params.map(p => `${p.marker}${p.seriesName}: ${Number(p.value).toFixed(2)}`).join('<br/>');
+        if (params.length >= 2) {
+          const diff = Number(params[1].value - params[0].value).toFixed(3);
+          const pct = ((params[1].value - params[0].value) / (params[0].value || 1) * 100).toFixed(3);
+          return `${params[0].axisValue}<br/>${rows}<br/><span style="color:#888">差额: ${diff} (${pct}%)</span>`;
+        }
+        return `${params[0].axisValue}<br/>${rows}`;
+      }
+    },
+    legend: { data: ['不复权收盘', '前复权收盘'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
-    xAxis: catAxis(dates), yAxis: { scale: true, min: Math.min(...close) * 0.98, max: Math.max(...close) * 1.02, ...priceFmt },
-    series: [{ name: '收盘价', type: 'line', data: close, smooth: true, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, areaStyle: { opacity: 0.08 } }]
+    xAxis: { type: 'category', data: shareDates, axisLabel: { formatter: v => v.slice(5) } },
+    yAxis: { scale: true, min: Math.min(...allClose) * 0.98, max: Math.max(...allClose) * 1.02, ...priceFmt },
+    graphic: [{ type: 'text', left: g.left + 8, top: 10, style: {
+      text: `首差 ${((firstQ - firstN) / (firstN || 1) * 100).toFixed(3)}%  末差 ${latestPct}%  均差 ${avgGap.toFixed(3)}`,
+      fill: '#555', fontSize: 11, fontFamily: 'Microsoft YaHei'
+    } }],
+    series: [
+      { name: '不复权收盘', type: 'line', data: closeN, smooth: true, showSymbol: false, lineStyle: { color: '#667eea', width: 2 },
+        areaStyle: { opacity: 0.06 } },
+      { name: '前复权收盘', type: 'line', data: closeQ, smooth: true, showSymbol: false, lineStyle: { color: '#e67e22', width: 2 } }
+    ]
   }, true);
 
   // 日收益率（按日期显示每日涨跌%）
@@ -344,10 +373,9 @@ function init() {
     sel.appendChild(opt);
   });
   sel.onchange = () => { curStock = sel.value; render(); };
-  document.querySelectorAll('input[name="adj"]').forEach(r => {
-    r.addEventListener('change', e => {
-      if (e.target.checked) { curAdj = e.target.value; render(); }
-    });
+  document.getElementById('adjToggle').addEventListener('change', e => {
+    curAdj = e.target.checked ? 'qfq' : 'nofq';
+    render();
   });
   const ids = ['ma', 'ma2', 'rsi', 'fast', 'slow', 'sig', 'bb', 'bbm', 'kdj'];
   ids.forEach(id => {
