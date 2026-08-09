@@ -226,7 +226,7 @@ function render() {
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
     legend: { data: ['日K', '收盘价', '成交量'], top: 0, textStyle: { fontSize: 12 } },
     axisPointer: { link: [{ xAxisIndex: 'all' }] },
-    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 55, end: 100 }],
+    dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100, zoomOnMouseWheel: true, moveOnMouseMove: true }],
     grid: [
       { left: 60, right: 60, top: 30, bottom: '38%' },
       { left: 60, right: 60, top: '70%', bottom: 30 }
@@ -252,6 +252,7 @@ function render() {
     legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
+    dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
       { name: 'MA' + pMa, type: 'line', data: ma(close, pMa), smooth: true, showSymbol: false, lineStyle: { width: 2 } },
       { name: 'MA' + pMa2, type: 'line', data: ma(close, pMa2), smooth: true, showSymbol: false, lineStyle: { width: 2 } }
@@ -284,6 +285,7 @@ function render() {
     grid: g,
     xAxis: { type: 'category', data: shareDates, axisLabel: { formatter: v => v.slice(5) } },
     yAxis: { scale: true, min: Math.min(...allClose) * 0.98, max: Math.max(...allClose) * 1.02, ...priceFmt },
+    dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     graphic: [{ type: 'text', left: g.left + 8, top: 10, style: {
       text: `首差 ${((firstQ - firstN) / (firstN || 1) * 100).toFixed(3)}%  末差 ${latestPct}%  均差 ${avgGap.toFixed(3)}`,
       fill: '#555', fontSize: 11, fontFamily: 'Microsoft YaHei'
@@ -302,6 +304,7 @@ function render() {
     grid: g,
     xAxis: catAxis(dates),
     yAxis: { name: '涨跌%', axisLabel: { formatter: v => v.toFixed(1) + '%' } },
+    dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
       { name: '日涨跌%', type: 'bar', data: pct, barWidth: '70%',
         itemStyle: { color: v => v.value >= 0 ? '#ec0000' : '#00da3c' },
@@ -315,6 +318,7 @@ function render() {
     tooltip: tip(), legend: { data: ['RSI'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { min: 0, max: 100 },
+    dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [{ name: 'RSI', type: 'line', data: r, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 70, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买70' } }, { yAxis: 30, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖30' } }] } }]
   }, true);
 
@@ -324,6 +328,7 @@ function render() {
     tooltip: tip(), legend: { data: ['DIF', 'DEA', 'MACD柱'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true },
+    dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
       { name: 'DIF', type: 'line', data: m.dif, showSymbol: false, lineStyle: { color: '#3498db', width: 1.5 } },
       { name: 'DEA', type: 'line', data: m.dea, showSymbol: false, lineStyle: { color: '#e74c3c', width: 1.5 } },
@@ -337,6 +342,7 @@ function render() {
     tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
+    dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
       { name: '收盘价', type: 'line', data: close, showSymbol: false, lineStyle: { color: '#667eea', width: 2 } },
       { name: '上轨', type: 'line', data: b.up, showSymbol: false, lineStyle: { color: '#e74c3c', type: 'dashed' } },
@@ -351,6 +357,7 @@ function render() {
     tooltip: tip(), legend: { data: ['K', 'D', 'J'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true },
+    dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
       { name: 'K', type: 'line', data: kd.k, showSymbol: false, lineStyle: { color: '#3498db', width: 1.5 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 80, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买80' } }, { yAxis: 20, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖20' } }] } },
       { name: 'D', type: 'line', data: kd.d, showSymbol: false, lineStyle: { color: '#e74c3c', width: 1.5 } },
