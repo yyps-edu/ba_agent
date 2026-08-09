@@ -157,7 +157,8 @@ def fetch_stock(symbol, adjust):
     """
     import akshare as ak
     last_err = None
-    em_max_attempts = 2   # 东财已被封则快速跳过，不浪费 8×16s
+    em_max_attempts = 1   # 东财已被封 → 1 次快速跳过（0s等待）
+    tx_max_attempts = 3   # 腾讯稳定 → 3 次足够
 
     # ========== 源1: 东方财富 stock_zh_a_hist ==========
     for attempt in range(1, em_max_attempts + 1):
@@ -171,7 +172,7 @@ def fetch_stock(symbol, adjust):
             return _normalize_ak_df(df)
         except Exception as e:
             last_err = e
-            wait = 2 if attempt < em_max_attempts else 0
+            wait = 0
             tag = f"[东财 {symbol} ad={adjust!r}]"
             print(f"    {tag} {attempt}/{em_max_attempts} 失败: {type(e).__name__}: {str(e)[:120]} → {wait}s")
             if wait:
@@ -183,7 +184,7 @@ def fetch_stock(symbol, adjust):
     # 注意：腾讯接口①无 period 参数 ②symbol 必须带 sh/sz 前缀 ③adjust: None='' 或 'qfq'
     tx_sym = _tx_symbol(symbol)
     tx_adjust = None if adjust == "" else adjust
-    for attempt in range(1, 9):
+    for attempt in range(1, tx_max_attempts + 1):
         try:
             df = ak.stock_zh_a_hist_tx(
                 symbol=tx_sym, start_date=START, end_date=END, adjust=tx_adjust,
@@ -193,9 +194,10 @@ def fetch_stock(symbol, adjust):
             return _normalize_ak_df(df)
         except Exception as e:
             last_err = e
-            wait = min(2 ** min(attempt, 4), 20)
-            print(f"    [腾讯 {tx_sym} ad={adjust!r}] {attempt}/8 失败: {type(e).__name__}: {str(e)[:120]} → {wait}s")
-            time.sleep(wait)
+            wait = min(2 ** min(attempt, 3), 8) if attempt < tx_max_attempts else 0
+            print(f"    [腾讯 {tx_sym} ad={adjust!r}] {attempt}/{tx_max_attempts} 失败: {type(e).__name__}: {str(e)[:120]} → {wait}s")
+            if wait:
+                time.sleep(wait)
     raise RuntimeError(f"ak {symbol} adjust={adjust!r} 全部源失败, 最后错误: {last_err}")
 
 def fetch_all():
