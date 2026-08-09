@@ -92,10 +92,10 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
       <div class="params-bar">
         <div class="param"><label>KDJ 周期 <span id="v-kdj">9</span></label><input type="range" id="p-kdj" min="3" max="30" value="9"></div>
       </div>
-      <div id="c-kdj" class="chart"></div>
+      <div id="c-kdj" class="chart tall"></div>
     </div>
 
-    <div class="chart-box full">
+    <div class="chart-box">
       <div class="chart-title">K线</div>
       <div id="c-kline" class="chart tall"></div>
     </div>
@@ -184,7 +184,7 @@ function val(id) { return parseFloat(document.getElementById(id).value); }
 function catAxis(dates) { return { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(5) } }; }
 function tip() { return { trigger: 'axis', axisPointer: { type: 'cross' } }; }
 const priceFmt = { axisLabel: { formatter: v => Number(v).toFixed(2) } };
-const g = { left: 60, right: 40, bottom: 56, top: 30 };
+const g = { left: 60, right: 80, bottom: 56, top: 30 };
 
 // ---------- 渲染 ----------
 function render() {
@@ -212,8 +212,8 @@ function render() {
     axisPointer: { link: [{ xAxisIndex: 'all' }] },
     dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 55, end: 100 }],
     grid: [
-      { left: '6%', right: '4%', top: 30, bottom: '38%' },
-      { left: '6%', right: '4%', top: '70%', bottom: 30 }
+      { left: 60, right: 60, top: 30, bottom: '38%' },
+      { left: 60, right: 60, top: '70%', bottom: 30 }
     ],
     xAxis: [
       { type: 'category', data: dates, gridIndex: 0, axisLabel: { show: false }, axisTick: { show: false } },
