@@ -90,7 +90,29 @@ def _tcp_test(host, port=443, timeout=10):
 
 # ========== 1. 数据获取：AKShare（东财 → 腾讯 双源） ==========
 def _normalize_ak_df(df, start=START, end=END):
-    """统一列名 + 计算 daily_return + 过滤日期"""
+    """
+    统一列名 + 计算 daily_return + 过滤日期。
+    兼容两种源：
+      - 东方财富（中文列）：日期/开盘/收盘/最高/最低/成交量/成交额/涨跌幅/涨跌额
+      - 腾讯（英文列）：date/open/close/high/low/amount（缺vol/change/pct_chg，需补算）
+    """
+    # --- 1) 腾讯分支：英文列 → 中文列（保证后续 col_map 可统一命中） ---
+    tx_cols = {"date", "open", "close", "high", "low", "amount"}
+    if tx_cols.issubset(set(df.columns)) and "日期" not in df.columns:
+        # 若腾讯返回 amount 单位不明，优先用 amount 估成交量（量柱只看相对大小，不做精确显示）
+        if "vol" not in df.columns:
+            df = df.copy()
+            # 腾讯接口无成交量列，用成交额/一个近似价估 vol，或直接 = amount（归一化显示即可）
+            df["__tmp_mid"] = (df["open"].fillna(0) + df["close"].fillna(0)) / 2
+            df["__tmp_mid"] = df["__tmp_mid"].replace(0, np.nan).ffill().bfill().fillna(1)
+            df["vol"] = (df["amount"].fillna(0) / df["__tmp_mid"]).round(0).astype(np.int64)
+            df = df.drop(columns=["__tmp_mid"])
+        df = df.rename(columns={
+            "date": "日期", "open": "开盘", "close": "收盘",
+            "high": "最高", "low": "最低", "vol": "成交量", "amount": "成交额",
+        })
+
+    # --- 2) 中文列统一映射 ---
     col_map = {
         "日期": "trade_date", "开盘": "open", "收盘": "close",
         "最高": "high", "最低": "low", "成交量": "vol",
@@ -101,24 +123,44 @@ def _normalize_ak_df(df, start=START, end=END):
     start_dt = pd.to_datetime(start, format="%Y%m%d")
     end_dt   = pd.to_datetime(end,   format="%Y%m%d")
     df = df[(df["trade_date"] >= start_dt) & (df["trade_date"] <= end_dt)]
-    df["pre_close"] = df["close"].shift(1)
-    df["daily_return"] = df["close"].pct_change()
     df = df.sort_values("trade_date").reset_index(drop=True)
+
+    # --- 3) 缺失字段补算（腾讯源缺 change/pct_chg/pre_close/daily_return） ---
+    if "pre_close" not in df.columns:
+        df["pre_close"] = df["close"].shift(1)
+    if "change" not in df.columns:
+        df["change"] = df["close"] - df["pre_close"]
+    if "pct_chg" not in df.columns:
+        df["pct_chg"] = np.where(df["pre_close"].fillna(0) != 0,
+                                 df["change"] / df["pre_close"] * 100, np.nan)
+    if "daily_return" not in df.columns:
+        df["daily_return"] = df["close"].pct_change()
+
+    # 若 vol/amount 缺失（极端情况）填 0 保证不崩
+    df["vol"]    = pd.to_numeric(df["vol"], errors="coerce").fillna(0).astype(np.int64)
+    df["amount"] = pd.to_numeric(df["amount"], errors="coerce").fillna(0)
+
     cols = ["trade_date","open","high","low","close","pre_close","change","pct_chg","vol","amount","daily_return"]
     return df[cols]
+
+def _tx_symbol(symbol):
+    """给 6/9 开头加 sh，0/3 开头加 sz（腾讯接口要求带市场前缀）"""
+    if symbol.startswith(("6", "9")):
+        return "sh" + symbol
+    return "sz" + symbol
 
 def fetch_stock(symbol, adjust):
     """
     获取单只股票不复权或前复权数据。
     adjust: ''（不复权）或 'qfq'（前复权）
-    优先用东方财富 stock_zh_a_hist，失败切换腾讯 stock_zh_a_hist_tx。
-    每源 8 次指数退避重试。
+    优先用东方财富 stock_zh_a_hist，失败快速切换腾讯 stock_zh_a_hist_tx。
     """
     import akshare as ak
     last_err = None
+    em_max_attempts = 2   # 东财已被封则快速跳过，不浪费 8×16s
 
     # ========== 源1: 东方财富 stock_zh_a_hist ==========
-    for attempt in range(1, 9):
+    for attempt in range(1, em_max_attempts + 1):
         try:
             df = ak.stock_zh_a_hist(
                 symbol=symbol, period="daily",
@@ -129,23 +171,22 @@ def fetch_stock(symbol, adjust):
             return _normalize_ak_df(df)
         except Exception as e:
             last_err = e
-            wait = min(2 ** min(attempt, 4), 20)
-            print(f"    [东财 {symbol} ad={adjust!r}] {attempt}/8 失败: {type(e).__name__}: {str(e)[:120]} → {wait}s")
-            time.sleep(wait)
-            if attempt == 4 and not _tcp_test("push2his.eastmoney.com"):
-                print("      → eastmoney TCP 不通，提前结束东方财富")
-                break
+            wait = 2 if attempt < em_max_attempts else 0
+            tag = f"[东财 {symbol} ad={adjust!r}]"
+            print(f"    {tag} {attempt}/{em_max_attempts} 失败: {type(e).__name__}: {str(e)[:120]} → {wait}s")
+            if wait:
+                time.sleep(wait)
 
-    print(f"    → 东方财富全部失败，切换腾讯 stock_zh_a_hist_tx 接口…")
+    print(f"    → 东方财富失败，切换腾讯 stock_zh_a_hist_tx 接口…")
 
     # ========== 源2: 腾讯 stock_zh_a_hist_tx ==========
+    # 注意：腾讯接口①无 period 参数 ②symbol 必须带 sh/sz 前缀 ③adjust: None='' 或 'qfq'
+    tx_sym = _tx_symbol(symbol)
+    tx_adjust = None if adjust == "" else adjust
     for attempt in range(1, 9):
         try:
-            # adjust 腾讯接口：'qfq'=前复权, None=''=不复权
-            tx_adjust = None if adjust == "" else adjust
             df = ak.stock_zh_a_hist_tx(
-                symbol=symbol, period="daily",
-                start_date=START, end_date=END, adjust=tx_adjust,
+                symbol=tx_sym, start_date=START, end_date=END, adjust=tx_adjust,
             )
             if df is None or df.empty:
                 raise RuntimeError(f"腾讯返回空 shape={getattr(df,'shape',None)}")
@@ -153,7 +194,7 @@ def fetch_stock(symbol, adjust):
         except Exception as e:
             last_err = e
             wait = min(2 ** min(attempt, 4), 20)
-            print(f"    [腾讯 {symbol} ad={adjust!r}] {attempt}/8 失败: {type(e).__name__}: {str(e)[:120]} → {wait}s")
+            print(f"    [腾讯 {tx_sym} ad={adjust!r}] {attempt}/8 失败: {type(e).__name__}: {str(e)[:120]} → {wait}s")
             time.sleep(wait)
     raise RuntimeError(f"ak {symbol} adjust={adjust!r} 全部源失败, 最后错误: {last_err}")
 
