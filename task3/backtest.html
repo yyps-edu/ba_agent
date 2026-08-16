@@ -151,7 +151,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
   <div class="footer">© 2026 均线策略回测看板 | 策略：双均线交叉 | 数据来源：AKShare | 基于 ECharts</div>
 </div>
 
-<script src="../task2/data.js"></script>
+<script src="../data.js"></script>
 <script>
 let curStock = Object.keys(DATA)[0];
 let curAdj = 'nofq';
@@ -247,6 +247,8 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
     const cost = shares * entryPrice;
     if (revenue - sellFee > cost) wins++;
     totalTrades++;
+    position = 0;
+    shares = 0;
   }
 
   const finalEquity = cash + (position === 1 ? shares * close[n - 1] : 0);
