@@ -66,13 +66,6 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
         <label><input type="checkbox" id="adjToggle" value="qfq"><span class="slider"></span></label>
       </div>
       <select id="stockSelect"></select>
-      <select id="rangeSelect">
-        <option value="all">全部</option>
-        <option value="1m">近1月</option>
-        <option value="3m">近3月</option>
-        <option value="6m">近6月</option>
-        <option value="1y">近1年</option>
-      </select>
     </div>
   </div>
 
@@ -155,30 +148,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 <script>
 let curStock = Object.keys(DATA)[0];
 let curAdj = 'nofq';
-let curRange = 'all';
 const charts = {};
-
-// ---------- 时间区间切片 ----------
-function sliceData(dates, ohlc, close, vol, pct) {
-  const total = dates.length;
-  let n;
-  switch (curRange) {
-    case '1m': n = 22;  break;
-    case '3m': n = 66;  break;
-    case '6m': n = 132; break;
-    case '1y': n = 252; break;
-    default:   return { dates, ohlc, close, vol, pct };
-  }
-  n = Math.min(n, total);
-  const start = total - n;
-  return {
-    dates: dates.slice(start),
-    ohlc:  ohlc.slice(start),
-    close: close.slice(start),
-    vol:   vol.slice(start),
-    pct:   pct.slice(start),
-  };
-}
 
 // ---------- 技术指标计算 ----------
 function ma(arr, n) {
@@ -261,9 +231,7 @@ const g = { left: 60, right: 80, bottom: 56, top: 30 };
 function render() {
   const meta = DATA[curStock];
   const s = meta[curAdj];
-  // 按时间区间切片
-  const sliced = sliceData(s.dates, s.ohlc, s.close, s.vol, s.pct);
-  const dates = sliced.dates, ohlc = sliced.ohlc, close = sliced.close, vol = sliced.vol, pct = sliced.pct;
+  const dates = s.dates, ohlc = s.ohlc, close = s.close, vol = s.vol, pct = s.pct;
   const pMa = val('p-ma'), pMa2 = val('p-ma2'), pRsi = val('p-rsi');
   const pFast = val('p-fast'), pSlow = val('p-slow'), pSig = val('p-sig');
   const pBb = val('p-bb'), pBbm = val('p-bbm'), pKdj = val('p-kdj');
@@ -273,7 +241,6 @@ function render() {
   const std = Math.sqrt(pct.reduce((a, b) => a + (b - mean) ** 2, 0) / pct.length);
   const stats = [
     ['股票代码', meta.code],
-    ['数据天数', dates.length + ' 天'],
     ['时间区间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
     ['最新收盘', close[close.length - 1].toFixed(2)],
     ['日均涨跌', mean.toFixed(4) + '%'],
@@ -322,14 +289,10 @@ function render() {
     ]
   }, true);
 
-  // 收盘价：不复权 + 前复权 对比（也按时间区间切片）
+  // 收盘价：不复权 + 前复权 对比
   const blockN = meta.nofq, blockQ = meta.qfq;
   const mapN = Object.fromEntries(blockN.dates.map((d, i) => [d, blockN.close[i]]));
-  const allShareDates = blockQ.dates.filter(d => Object.prototype.hasOwnProperty.call(mapN, d));
-  // 切片收盘价对比数据
-  const rangeN = curRange === 'all' ? allShareDates.length : Math.min({ '1m':22,'3m':66,'6m':132,'1y':252 }[curRange] || allShareDates.length, allShareDates.length);
-  const sdStart = allShareDates.length - rangeN;
-  const shareDates = allShareDates.slice(sdStart);
+  const shareDates = blockQ.dates.filter(d => Object.prototype.hasOwnProperty.call(mapN, d));
   const closeN = shareDates.map(d => mapN[d]);
   const closeQ = shareDates.map(d => blockQ.close[blockQ.dates.indexOf(d)]);
   const allClose = closeN.concat(closeQ);
@@ -449,10 +412,6 @@ function init() {
   sel.onchange = () => { curStock = sel.value; render(); };
   document.getElementById('adjToggle').addEventListener('change', e => {
     curAdj = e.target.checked ? 'qfq' : 'nofq';
-    render();
-  });
-  document.getElementById('rangeSelect').addEventListener('change', e => {
-    curRange = e.target.value;
     render();
   });
   const ids = ['ma', 'ma2', 'rsi', 'fast', 'slow', 'sig', 'bb', 'bbm', 'kdj'];

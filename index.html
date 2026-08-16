@@ -8,35 +8,52 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #333; }
-.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+.container { max-width: 1700px; margin: 0 auto; padding: 20px; }
 .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 24px 30px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .header h1 { font-size: 26px; }
 .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.stock-select select { background: #fff; color: #333; border: 2px solid #dcdfe6; padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.header-right select { background: #fff; color: #333; border: 2px solid #dcdfe6; padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; white-space: nowrap; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
 .adj-switch { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-size: 14px; font-weight: 500; }
-.adj-switch .switch-label { white-space: nowrap; }
 .adj-switch input { position: absolute; opacity: 0; pointer-events: none; }
 .adj-switch .slider { position: relative; display: inline-block; width: 46px; height: 24px; background: rgba(255,255,255,0.35); border-radius: 999px; cursor: pointer; transition: background 0.25s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15); }
 .adj-switch .slider::after { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.25s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 .adj-switch input:checked + .slider { background: #2ecc71; }
 .adj-switch input:checked + .slider::after { transform: translateX(22px); }
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-.stat-card { background: #fff; padding: 16px 10px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
-.stat-card .label { color: #888; font-size: 13px; margin-bottom: 6px; white-space: nowrap; }
-.stat-card .value { font-size: 16px; font-weight: bold; color: #667eea; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.charts-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+
+/* ========== 两栏布局 ========== */
+.main-layout { display: flex; gap: 20px; align-items: flex-start; }
+
+/* ---------- 左栏：统计指标 ---------- */
+.sidebar { flex: 0 0 300px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+.panel { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.panel-title { font-size: 15px; color: #333; margin-bottom: 14px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
+.stats-list { display: flex; flex-direction: column; gap: 10px; }
+.stat-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8f9ff; border-radius: 8px; }
+.stat-item .label { color: #666; font-size: 13px; white-space: nowrap; }
+.stat-item .value { font-size: 15px; font-weight: bold; white-space: nowrap; color: #667eea; }
+.stat-item .value.pos { color: #e74c3c; }
+.stat-item .value.neg { color: #2ecc71; }
+
+/* ---------- 右栏：图表 ---------- */
+.main-content { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 20px; }
 .chart-box { flex: 0 0 calc(50% - 10px); background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; min-width: 0; box-sizing: border-box; }
 .chart-box.full { flex: 0 0 100%; }
 .chart-title { font-size: 15px; color: #333; margin-bottom: 8px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
-.params-bar { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; padding: 8px 12px; background: #f8f9ff; border-radius: 8px; }
-.param { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
+.params-bar { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 6px 10px; background: #f8f9ff; border-radius: 8px; }
+.param { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; }
 .param label { white-space: nowrap; display: flex; align-items: center; gap: 4px; }
 .param label span { color: #667eea; font-weight: bold; min-width: 28px; text-align: center; }
-.param input[type=range] { width: 110px; accent-color: #667eea; cursor: pointer; }
+.param input[type=range] { width: 100px; accent-color: #667eea; cursor: pointer; }
 .chart { width: 100%; height: 360px; }
 .chart.tall { height: 420px; }
-.footer { text-align: center; padding: 24px; color: #999; font-size: 13px; }
-@media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } .param input[type=range] { width: 90px; } }
+
+.footer { text-align: center; padding: 24px; color: #999; font-size: 13px; margin-top: 20px; }
+
+@media (max-width: 1100px) {
+  .main-layout { flex-direction: column; }
+  .sidebar { position: static; flex: 0 0 auto; width: 100%; }
+  .chart-box, .chart-box.full { flex: 0 0 100%; }
+}
 </style>
 </head>
 <body>
@@ -45,80 +62,89 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
     <h1>📈 股票交易指标看板</h1>
     <div class="header-right">
       <div class="adj-switch" role="switch" aria-label="前复权开关">
-        <span class="switch-label">前复权</span>
+        <span>前复权</span>
         <label><input type="checkbox" id="adjToggle" value="qfq"><span class="slider"></span></label>
       </div>
-      <div class="stock-select"><select id="stockSelect"></select></div>
+      <select id="stockSelect"></select>
     </div>
   </div>
 
-  <div class="stats-grid" id="stats"></div>
-
-  <div class="charts-grid">
-    <div class="chart-box full">
-      <div class="chart-title">收盘价</div>
-      <div id="c-close" class="chart"></div>
-    </div>
-
-    <div class="chart-box full">
-      <div class="chart-title">日涨跌幅度</div>
-      <div id="c-dist" class="chart"></div>
-    </div>
-
-    <div class="chart-box">
-      <div class="chart-title">均线</div>
-      <div class="params-bar">
-        <div class="param"><label>MA 周期 <span id="v-ma">5</span></label><input type="range" id="p-ma" min="2" max="60" value="5"></div>
-        <div class="param"><label>MA2 周期 <span id="v-ma2">15</span></label><input type="range" id="p-ma2" min="2" max="60" value="15"></div>
+  <div class="main-layout">
+    <!-- ========== 左栏：统计指标 ========== -->
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="panel-title">数据统计</div>
+        <div class="stats-list" id="stats"></div>
       </div>
-      <div id="c-ma" class="chart"></div>
-    </div>
+    </aside>
 
-    <div class="chart-box">
-      <div class="chart-title">RSI</div>
-      <div class="params-bar">
-        <div class="param"><label>RSI 周期 <span id="v-rsi">14</span></label><input type="range" id="p-rsi" min="2" max="40" value="14"></div>
+    <!-- ========== 右栏：图表 ========== -->
+    <main class="main-content">
+      <div class="chart-box full">
+        <div class="chart-title">收盘价</div>
+        <div id="c-close" class="chart"></div>
       </div>
-      <div id="c-rsi" class="chart"></div>
-    </div>
 
-    <div class="chart-box">
-      <div class="chart-title">MACD</div>
-      <div class="params-bar">
-        <div class="param"><label>快线 <span id="v-fast">12</span></label><input type="range" id="p-fast" min="2" max="30" value="12"></div>
-        <div class="param"><label>慢线 <span id="v-slow">26</span></label><input type="range" id="p-slow" min="3" max="50" value="26"></div>
-        <div class="param"><label>信号 <span id="v-sig">9</span></label><input type="range" id="p-sig" min="2" max="30" value="9"></div>
+      <div class="chart-box full">
+        <div class="chart-title">日涨跌幅度</div>
+        <div id="c-dist" class="chart"></div>
       </div>
-      <div id="c-macd" class="chart"></div>
-    </div>
 
-    <div class="chart-box">
-      <div class="chart-title">布林带</div>
-      <div class="params-bar">
-        <div class="param"><label>周期 <span id="v-bb">20</span></label><input type="range" id="p-bb" min="5" max="40" value="20"></div>
-        <div class="param"><label>σ倍数 <span id="v-bbm">2.0</span></label><input type="range" id="p-bbm" min="1" max="3" step="0.1" value="2"></div>
+      <div class="chart-box">
+        <div class="chart-title">均线</div>
+        <div class="params-bar">
+          <div class="param"><label>MA <span id="v-ma">5</span></label><input type="range" id="p-ma" min="2" max="60" value="5"></div>
+          <div class="param"><label>MA2 <span id="v-ma2">15</span></label><input type="range" id="p-ma2" min="2" max="60" value="15"></div>
+        </div>
+        <div id="c-ma" class="chart"></div>
       </div>
-      <div id="c-bb" class="chart"></div>
-    </div>
 
-    <div class="chart-box">
-      <div class="chart-title">KDJ</div>
-      <div class="params-bar">
-        <div class="param"><label>KDJ 周期 <span id="v-kdj">9</span></label><input type="range" id="p-kdj" min="3" max="30" value="9"></div>
+      <div class="chart-box">
+        <div class="chart-title">RSI</div>
+        <div class="params-bar">
+          <div class="param"><label>RSI <span id="v-rsi">14</span></label><input type="range" id="p-rsi" min="2" max="40" value="14"></div>
+        </div>
+        <div id="c-rsi" class="chart"></div>
       </div>
-      <div id="c-kdj" class="chart tall"></div>
-    </div>
 
-    <div class="chart-box">
-      <div class="chart-title">K线</div>
-      <div id="c-kline" class="chart tall"></div>
-    </div>
+      <div class="chart-box">
+        <div class="chart-title">MACD</div>
+        <div class="params-bar">
+          <div class="param"><label>快线 <span id="v-fast">12</span></label><input type="range" id="p-fast" min="2" max="30" value="12"></div>
+          <div class="param"><label>慢线 <span id="v-slow">26</span></label><input type="range" id="p-slow" min="3" max="50" value="26"></div>
+          <div class="param"><label>信号 <span id="v-sig">9</span></label><input type="range" id="p-sig" min="2" max="30" value="9"></div>
+        </div>
+        <div id="c-macd" class="chart"></div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">布林带</div>
+        <div class="params-bar">
+          <div class="param"><label>周期 <span id="v-bb">20</span></label><input type="range" id="p-bb" min="5" max="40" value="20"></div>
+          <div class="param"><label>σ <span id="v-bbm">2.0</span></label><input type="range" id="p-bbm" min="1" max="3" step="0.1" value="2"></div>
+        </div>
+        <div id="c-bb" class="chart"></div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">KDJ</div>
+        <div class="params-bar">
+          <div class="param"><label>KDJ <span id="v-kdj">9</span></label><input type="range" id="p-kdj" min="3" max="30" value="9"></div>
+        </div>
+        <div id="c-kdj" class="chart tall"></div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">K线</div>
+        <div id="c-kline" class="chart tall"></div>
+      </div>
+    </main>
   </div>
 
-  <div class="footer">© 2026 股票交易指标看板 | 数据来源：Tushare | 基于 ECharts</div>
+  <div class="footer">© 2026 股票交易指标看板 | 数据来源：AKShare | 基于 ECharts</div>
 </div>
 
-<script src="data.js"></script>
+<script src="task2/data.js"></script>
 <script>
 let curStock = Object.keys(DATA)[0];
 let curAdj = 'nofq';
@@ -210,18 +236,22 @@ function render() {
   const pFast = val('p-fast'), pSlow = val('p-slow'), pSig = val('p-sig');
   const pBb = val('p-bb'), pBbm = val('p-bbm'), pKdj = val('p-kdj');
 
-  // 统计卡片（不复权/前复权的代码、天数、时间等均相同，去除后缀/前缀）
+  // 统计指标
   const mean = pct.reduce((a, b) => a + b, 0) / pct.length;
   const std = Math.sqrt(pct.reduce((a, b) => a + (b - mean) ** 2, 0) / pct.length);
   const stats = [
-    ['股票代码', meta.code], ['数据天数', dates.length], ['时间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
-    ['最新收盘', close[close.length - 1].toFixed(2)], ['日均涨跌(%)', mean.toFixed(4)],
-    ['波动率(%)', std.toFixed(4)], ['最大涨幅(%)', Math.max(...pct).toFixed(2)], ['最大跌幅(%)', Math.min(...pct).toFixed(2)]
+    ['股票代码', meta.code],
+    ['时间区间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
+    ['最新收盘', close[close.length - 1].toFixed(2)],
+    ['日均涨跌', mean.toFixed(4) + '%'],
+    ['波动率', std.toFixed(4) + '%'],
+    ['最大涨幅', '+' + Math.max(...pct).toFixed(2) + '%'],
+    ['最大跌幅', Math.min(...pct).toFixed(2) + '%'],
   ];
   document.getElementById('stats').innerHTML = stats.map(([l, v]) =>
-    `<div class="stat-card"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
+    `<div class="stat-item"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
 
-  // K线 + 收盘价 + 成交量（同一图，上下双 grid 布局）
+  // K线 + 收盘价 + 成交量
   charts.kline.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
     legend: { data: ['日K', '收盘价', '成交量'], top: 0, textStyle: { fontSize: 12 } },
@@ -246,7 +276,7 @@ function render() {
     ]
   }, true);
 
-  // 移动平均线（独立图）
+  // 均线
   charts.ma.setOption({
     tooltip: tip(),
     legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
@@ -259,7 +289,7 @@ function render() {
     ]
   }, true);
 
-  // 收盘价：不复权 + 前复权 双折线对比（日期对齐，不受 curAdj 影响）
+  // 收盘价：不复权 + 前复权 对比
   const blockN = meta.nofq, blockQ = meta.qfq;
   const mapN = Object.fromEntries(blockN.dates.map((d, i) => [d, blockN.close[i]]));
   const shareDates = blockQ.dates.filter(d => Object.prototype.hasOwnProperty.call(mapN, d));
@@ -297,7 +327,7 @@ function render() {
     ]
   }, true);
 
-  // 日收益率（按日期显示每日涨跌%）
+  // 日涨跌幅度
   charts.dist.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, formatter: params => { const p=params[0]; return `${p.axisValue}<br/>涨跌: ${p.value.toFixed(2)}%`; } },
     legend: { data: ['日涨跌%'], top: 0, textStyle: { fontSize: 12 } },
