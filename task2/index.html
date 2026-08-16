@@ -12,7 +12,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 24px 30px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .header h1 { font-size: 26px; }
 .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.stock-select select { background: #fff; color: #333; border: 2px solid #dcdfe6; padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; white-space: nowrap; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.header-right select { background: #fff; color: #333; border: 2px solid #dcdfe6; padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; white-space: nowrap; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
 .adj-switch { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-size: 14px; font-weight: 500; }
 .adj-switch input { position: absolute; opacity: 0; pointer-events: none; }
 .adj-switch .slider { position: relative; display: inline-block; width: 46px; height: 24px; background: rgba(255,255,255,0.35); border-radius: 999px; cursor: pointer; transition: background 0.25s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15); }
@@ -23,17 +23,10 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 /* ========== 两栏布局 ========== */
 .main-layout { display: flex; gap: 20px; align-items: flex-start; }
 
-/* ---------- 左栏：参数 + 指标 ---------- */
-.sidebar { flex: 0 0 340px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+/* ---------- 左栏：统计指标 ---------- */
+.sidebar { flex: 0 0 300px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
 .panel { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
 .panel-title { font-size: 15px; color: #333; margin-bottom: 14px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
-.params-list { display: flex; flex-direction: column; gap: 14px; }
-.param { display: flex; flex-direction: column; gap: 4px; }
-.param-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #555; }
-.param label { white-space: nowrap; }
-.param label span { color: #667eea; font-weight: bold; min-width: 36px; display: inline-block; text-align: right; }
-.param input[type=range] { width: 100%; accent-color: #667eea; cursor: pointer; }
-
 .stats-list { display: flex; flex-direction: column; gap: 10px; }
 .stat-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8f9ff; border-radius: 8px; }
 .stat-item .label { color: #666; font-size: 13px; white-space: nowrap; }
@@ -46,6 +39,11 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .chart-box { flex: 0 0 calc(50% - 10px); background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; min-width: 0; box-sizing: border-box; }
 .chart-box.full { flex: 0 0 100%; }
 .chart-title { font-size: 15px; color: #333; margin-bottom: 8px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
+.params-bar { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 6px 10px; background: #f8f9ff; border-radius: 8px; }
+.param { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; }
+.param label { white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+.param label span { color: #667eea; font-weight: bold; min-width: 28px; text-align: center; }
+.param input[type=range] { width: 100px; accent-color: #667eea; cursor: pointer; }
 .chart { width: 100%; height: 360px; }
 .chart.tall { height: 420px; }
 
@@ -67,55 +65,20 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
         <span>前复权</span>
         <label><input type="checkbox" id="adjToggle" value="qfq"><span class="slider"></span></label>
       </div>
-      <div class="stock-select"><select id="stockSelect"></select></div>
+      <select id="stockSelect"></select>
+      <select id="rangeSelect">
+        <option value="all">全部</option>
+        <option value="1m">近1月</option>
+        <option value="3m">近3月</option>
+        <option value="6m">近6月</option>
+        <option value="1y">近1年</option>
+      </select>
     </div>
   </div>
 
   <div class="main-layout">
-    <!-- ========== 左栏 ========== -->
+    <!-- ========== 左栏：统计指标 ========== -->
     <aside class="sidebar">
-      <div class="panel">
-        <div class="panel-title">指标参数</div>
-        <div class="params-list">
-          <div class="param">
-            <div class="param-row"><label>MA 周期</label><label><span id="v-ma">5</span> 日</label></div>
-            <input type="range" id="p-ma" min="2" max="60" value="5">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>MA2 周期</label><label><span id="v-ma2">15</span> 日</label></div>
-            <input type="range" id="p-ma2" min="2" max="60" value="15">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>RSI 周期</label><label><span id="v-rsi">14</span> 日</label></div>
-            <input type="range" id="p-rsi" min="2" max="40" value="14">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>MACD 快线</label><label><span id="v-fast">12</span> 日</label></div>
-            <input type="range" id="p-fast" min="2" max="30" value="12">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>MACD 慢线</label><label><span id="v-slow">26</span> 日</label></div>
-            <input type="range" id="p-slow" min="3" max="50" value="26">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>MACD 信号</label><label><span id="v-sig">9</span> 日</label></div>
-            <input type="range" id="p-sig" min="2" max="30" value="9">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>布林带周期</label><label><span id="v-bb">20</span> 日</label></div>
-            <input type="range" id="p-bb" min="5" max="40" value="20">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>σ 倍数</label><label><span id="v-bbm">2.0</span></label></div>
-            <input type="range" id="p-bbm" min="1" max="3" step="0.1" value="2">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>KDJ 周期</label><label><span id="v-kdj">9</span> 日</label></div>
-            <input type="range" id="p-kdj" min="3" max="30" value="9">
-          </div>
-        </div>
-      </div>
-
       <div class="panel">
         <div class="panel-title">数据统计</div>
         <div class="stats-list" id="stats"></div>
@@ -136,26 +99,45 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 
       <div class="chart-box">
         <div class="chart-title">均线</div>
+        <div class="params-bar">
+          <div class="param"><label>MA <span id="v-ma">5</span></label><input type="range" id="p-ma" min="2" max="60" value="5"></div>
+          <div class="param"><label>MA2 <span id="v-ma2">15</span></label><input type="range" id="p-ma2" min="2" max="60" value="15"></div>
+        </div>
         <div id="c-ma" class="chart"></div>
       </div>
 
       <div class="chart-box">
         <div class="chart-title">RSI</div>
+        <div class="params-bar">
+          <div class="param"><label>RSI <span id="v-rsi">14</span></label><input type="range" id="p-rsi" min="2" max="40" value="14"></div>
+        </div>
         <div id="c-rsi" class="chart"></div>
       </div>
 
       <div class="chart-box">
         <div class="chart-title">MACD</div>
+        <div class="params-bar">
+          <div class="param"><label>快线 <span id="v-fast">12</span></label><input type="range" id="p-fast" min="2" max="30" value="12"></div>
+          <div class="param"><label>慢线 <span id="v-slow">26</span></label><input type="range" id="p-slow" min="3" max="50" value="26"></div>
+          <div class="param"><label>信号 <span id="v-sig">9</span></label><input type="range" id="p-sig" min="2" max="30" value="9"></div>
+        </div>
         <div id="c-macd" class="chart"></div>
       </div>
 
       <div class="chart-box">
         <div class="chart-title">布林带</div>
+        <div class="params-bar">
+          <div class="param"><label>周期 <span id="v-bb">20</span></label><input type="range" id="p-bb" min="5" max="40" value="20"></div>
+          <div class="param"><label>σ <span id="v-bbm">2.0</span></label><input type="range" id="p-bbm" min="1" max="3" step="0.1" value="2"></div>
+        </div>
         <div id="c-bb" class="chart"></div>
       </div>
 
       <div class="chart-box">
         <div class="chart-title">KDJ</div>
+        <div class="params-bar">
+          <div class="param"><label>KDJ <span id="v-kdj">9</span></label><input type="range" id="p-kdj" min="3" max="30" value="9"></div>
+        </div>
         <div id="c-kdj" class="chart tall"></div>
       </div>
 
@@ -173,7 +155,30 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 <script>
 let curStock = Object.keys(DATA)[0];
 let curAdj = 'nofq';
+let curRange = 'all';
 const charts = {};
+
+// ---------- 时间区间切片 ----------
+function sliceData(dates, ohlc, close, vol, pct) {
+  const total = dates.length;
+  let n;
+  switch (curRange) {
+    case '1m': n = 22;  break;
+    case '3m': n = 66;  break;
+    case '6m': n = 132; break;
+    case '1y': n = 252; break;
+    default:   return { dates, ohlc, close, vol, pct };
+  }
+  n = Math.min(n, total);
+  const start = total - n;
+  return {
+    dates: dates.slice(start),
+    ohlc:  ohlc.slice(start),
+    close: close.slice(start),
+    vol:   vol.slice(start),
+    pct:   pct.slice(start),
+  };
+}
 
 // ---------- 技术指标计算 ----------
 function ma(arr, n) {
@@ -256,12 +261,14 @@ const g = { left: 60, right: 80, bottom: 56, top: 30 };
 function render() {
   const meta = DATA[curStock];
   const s = meta[curAdj];
-  const dates = s.dates, ohlc = s.ohlc, close = s.close, vol = s.vol, pct = s.pct;
+  // 按时间区间切片
+  const sliced = sliceData(s.dates, s.ohlc, s.close, s.vol, s.pct);
+  const dates = sliced.dates, ohlc = sliced.ohlc, close = sliced.close, vol = sliced.vol, pct = sliced.pct;
   const pMa = val('p-ma'), pMa2 = val('p-ma2'), pRsi = val('p-rsi');
   const pFast = val('p-fast'), pSlow = val('p-slow'), pSig = val('p-sig');
   const pBb = val('p-bb'), pBbm = val('p-bbm'), pKdj = val('p-kdj');
 
-  // 统计指标（左栏列表样式）
+  // 统计指标
   const mean = pct.reduce((a, b) => a + b, 0) / pct.length;
   const std = Math.sqrt(pct.reduce((a, b) => a + (b - mean) ** 2, 0) / pct.length);
   const stats = [
@@ -277,7 +284,7 @@ function render() {
   document.getElementById('stats').innerHTML = stats.map(([l, v]) =>
     `<div class="stat-item"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
 
-  // K线 + 收盘价 + 成交量（同一图，上下双 grid 布局）
+  // K线 + 收盘价 + 成交量
   charts.kline.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
     legend: { data: ['日K', '收盘价', '成交量'], top: 0, textStyle: { fontSize: 12 } },
@@ -302,7 +309,7 @@ function render() {
     ]
   }, true);
 
-  // 移动平均线（独立图）
+  // 均线
   charts.ma.setOption({
     tooltip: tip(),
     legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
@@ -315,10 +322,14 @@ function render() {
     ]
   }, true);
 
-  // 收盘价：不复权 + 前复权 双折线对比（日期对齐，不受 curAdj 影响）
+  // 收盘价：不复权 + 前复权 对比（也按时间区间切片）
   const blockN = meta.nofq, blockQ = meta.qfq;
   const mapN = Object.fromEntries(blockN.dates.map((d, i) => [d, blockN.close[i]]));
-  const shareDates = blockQ.dates.filter(d => Object.prototype.hasOwnProperty.call(mapN, d));
+  const allShareDates = blockQ.dates.filter(d => Object.prototype.hasOwnProperty.call(mapN, d));
+  // 切片收盘价对比数据
+  const rangeN = curRange === 'all' ? allShareDates.length : Math.min({ '1m':22,'3m':66,'6m':132,'1y':252 }[curRange] || allShareDates.length, allShareDates.length);
+  const sdStart = allShareDates.length - rangeN;
+  const shareDates = allShareDates.slice(sdStart);
   const closeN = shareDates.map(d => mapN[d]);
   const closeQ = shareDates.map(d => blockQ.close[blockQ.dates.indexOf(d)]);
   const allClose = closeN.concat(closeQ);
@@ -353,7 +364,7 @@ function render() {
     ]
   }, true);
 
-  // 日收益率（按日期显示每日涨跌%）
+  // 日涨跌幅度
   charts.dist.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, formatter: params => { const p=params[0]; return `${p.axisValue}<br/>涨跌: ${p.value.toFixed(2)}%`; } },
     legend: { data: ['日涨跌%'], top: 0, textStyle: { fontSize: 12 } },
@@ -438,6 +449,10 @@ function init() {
   sel.onchange = () => { curStock = sel.value; render(); };
   document.getElementById('adjToggle').addEventListener('change', e => {
     curAdj = e.target.checked ? 'qfq' : 'nofq';
+    render();
+  });
+  document.getElementById('rangeSelect').addEventListener('change', e => {
+    curRange = e.target.value;
     render();
   });
   const ids = ['ma', 'ma2', 'rsi', 'fast', 'slow', 'sig', 'bb', 'bbm', 'kdj'];

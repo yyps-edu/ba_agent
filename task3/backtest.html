@@ -12,7 +12,7 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 24px 30px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .header h1 { font-size: 26px; }
 .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.stock-select select { background: #fff; color: #333; border: 2px solid #dcdfe6; padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; white-space: nowrap; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.header-right select { background: #fff; color: #333; border: 2px solid #dcdfe6; padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; white-space: nowrap; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-right: 36px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
 .adj-switch { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-size: 14px; font-weight: 500; }
 .adj-switch input { position: absolute; opacity: 0; pointer-events: none; }
 .adj-switch .slider { position: relative; display: inline-block; width: 46px; height: 24px; background: rgba(255,255,255,0.35); border-radius: 999px; cursor: pointer; transition: background 0.25s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15); }
@@ -23,18 +23,10 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 /* ========== 两栏布局 ========== */
 .main-layout { display: flex; gap: 20px; align-items: flex-start; }
 
-/* ---------- 左栏：参数 + 指标 ---------- */
-.sidebar { flex: 0 0 340px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+/* ---------- 左栏：统计指标 ---------- */
+.sidebar { flex: 0 0 300px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
 .panel { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
 .panel-title { font-size: 15px; color: #333; margin-bottom: 14px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
-.params-list { display: flex; flex-direction: column; gap: 14px; }
-.param { display: flex; flex-direction: column; gap: 4px; }
-.param-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #555; }
-.param label { white-space: nowrap; }
-.param label span { color: #667eea; font-weight: bold; min-width: 36px; display: inline-block; text-align: right; }
-.param input[type=range] { width: 100%; accent-color: #667eea; cursor: pointer; }
-.param input[type=number] { width: 100%; padding: 6px 10px; border: 1px solid #dcdfe6; border-radius: 6px; font-size: 13px; margin-top: 2px; }
-
 .stats-list { display: flex; flex-direction: column; gap: 10px; }
 .stat-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8f9ff; border-radius: 8px; }
 .stat-item .label { color: #666; font-size: 13px; white-space: nowrap; }
@@ -47,6 +39,12 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .main-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 .chart-box { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
 .chart-title { font-size: 15px; color: #333; margin-bottom: 8px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
+.params-bar { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 6px 10px; background: #f8f9ff; border-radius: 8px; }
+.param { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; }
+.param label { white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+.param label span { color: #667eea; font-weight: bold; min-width: 28px; text-align: center; }
+.param input[type=range] { width: 100px; accent-color: #667eea; cursor: pointer; }
+.param input[type=number] { width: 90px; padding: 4px 8px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px; }
 .chart { width: 100%; height: 400px; }
 .chart.tall { height: 500px; }
 
@@ -75,39 +73,20 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
         <span>前复权</span>
         <label><input type="checkbox" id="adjToggle"><span class="slider"></span></label>
       </div>
-      <div class="stock-select"><select id="stockSelect"></select></div>
+      <select id="stockSelect"></select>
+      <select id="rangeSelect">
+        <option value="all">全部</option>
+        <option value="1m">近1月</option>
+        <option value="3m">近3月</option>
+        <option value="6m">近6月</option>
+        <option value="1y">近1年</option>
+      </select>
     </div>
   </div>
 
   <div class="main-layout">
-    <!-- ========== 左栏 ========== -->
+    <!-- ========== 左栏：统计指标 ========== -->
     <aside class="sidebar">
-      <div class="panel">
-        <div class="panel-title">策略参数</div>
-        <div class="params-list">
-          <div class="param">
-            <div class="param-row"><label>短期均线周期</label><label><span id="v-short">5</span> 日</label></div>
-            <input type="range" id="p-short" min="2" max="60" value="5">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>长期均线周期</label><label><span id="v-long">20</span> 日</label></div>
-            <input type="range" id="p-long" min="5" max="120" value="20">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>初始资金</label><label>元</label></div>
-            <input type="number" id="p-capital" value="100000" min="1000" step="1000">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>手续费率</label><label><span id="v-fee">0.03</span> %</label></div>
-            <input type="range" id="p-fee" min="0" max="0.5" step="0.01" value="0.03">
-          </div>
-          <div class="param">
-            <div class="param-row"><label>滑点</label><label><span id="v-slip">0.05</span> %</label></div>
-            <input type="range" id="p-slip" min="0" max="0.5" step="0.01" value="0.05">
-          </div>
-        </div>
-      </div>
-
       <div class="panel">
         <div class="panel-title">收益指标</div>
         <div class="stats-list" id="stats"></div>
@@ -118,11 +97,20 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
     <main class="main-content">
       <div class="chart-box">
         <div class="chart-title">资金曲线：策略 vs 基准（买入持有）</div>
+        <div class="params-bar">
+          <div class="param"><label>初始资金</label><input type="number" id="p-capital" value="100000" min="1000" step="1000"></div>
+          <div class="param"><label>手续费 <span id="v-fee">0.03</span>%</label><input type="range" id="p-fee" min="0" max="0.5" step="0.01" value="0.03"></div>
+          <div class="param"><label>滑点 <span id="v-slip">0.05</span>%</label><input type="range" id="p-slip" min="0" max="0.5" step="0.01" value="0.05"></div>
+        </div>
         <div id="c-equity" class="chart"></div>
       </div>
 
       <div class="chart-box">
         <div class="chart-title">价格走势 + 均线 + 买卖信号</div>
+        <div class="params-bar">
+          <div class="param"><label>短期均线 <span id="v-short">5</span></label><input type="range" id="p-short" min="2" max="60" value="5"></div>
+          <div class="param"><label>长期均线 <span id="v-long">20</span></label><input type="range" id="p-long" min="5" max="120" value="20"></div>
+        </div>
         <div id="c-price" class="chart tall"></div>
       </div>
 
@@ -150,7 +138,24 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 <script>
 let curStock = Object.keys(DATA)[0];
 let curAdj = 'nofq';
+let curRange = 'all';
 const charts = {};
+
+// ---------- 时间区间切片 ----------
+function sliceData(dates, close) {
+  const total = dates.length;
+  let n;
+  switch (curRange) {
+    case '1m': n = 22;  break;
+    case '3m': n = 66;  break;
+    case '6m': n = 132; break;
+    case '1y': n = 252; break;
+    default:   return { dates, close };
+  }
+  n = Math.min(n, total);
+  const start = total - n;
+  return { dates: dates.slice(start), close: close.slice(start) };
+}
 
 // ---------- 工具 ----------
 function val(id) { return parseFloat(document.getElementById(id).value); }
@@ -173,9 +178,8 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
 
   let cash = capital;
   let shares = 0;
-  let position = 0; // 0=空仓, 1=持仓
+  let position = 0;
   let entryPrice = 0;
-  let entryIdx = -1;
 
   const equity = new Array(n).fill(0);
   const benchmark = new Array(n).fill(0);
@@ -191,72 +195,50 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
 
   for (let i = 0; i < n; i++) {
     const price = close[i];
-
-    // 基准：买入持有
     benchmark[i] = (capital / close[0]) * price;
 
-    // 均线信号（需要两条均线都有值）
     if (shortMA[i] !== null && longMA[i] !== null && i > 0 && shortMA[i - 1] !== null && longMA[i - 1] !== null) {
       const goldenCross = shortMA[i - 1] <= longMA[i - 1] && shortMA[i] > longMA[i];
       const deathCross = shortMA[i - 1] >= longMA[i - 1] && shortMA[i] < longMA[i];
 
-      // 金叉买入
       if (goldenCross && position === 0) {
         const execPrice = price * (1 + slipRate / 100);
         const fee = cash * feeRate / 100;
         const investable = cash - fee;
-        shares = Math.floor(investable / execPrice / 100) * 100; // 按手(100股)取整
+        shares = Math.floor(investable / execPrice / 100) * 100;
         if (shares > 0) {
           const cost = shares * execPrice;
           const buyFee = cost * feeRate / 100;
           cash -= (cost + buyFee);
           position = 1;
           entryPrice = execPrice;
-          entryIdx = i;
           buySignals.push({ idx: i, date: dates[i], price: price });
-          trades.push({
-            type: '买入', date: dates[i], price: execPrice.toFixed(2),
-            shares: shares, amount: cost.toFixed(2), fee: buyFee.toFixed(2)
-          });
+          trades.push({ type: '买入', date: dates[i], price: execPrice.toFixed(2), shares: shares, amount: cost.toFixed(2), fee: buyFee.toFixed(2) });
         }
       }
 
-      // 死叉卖出
       if (deathCross && position === 1) {
         const execPrice = price * (1 - slipRate / 100);
         const revenue = shares * execPrice;
         const sellFee = revenue * feeRate / 100;
         cash += (revenue - sellFee);
-
-        // 统计盈亏
         const cost = shares * entryPrice;
         if (revenue - sellFee > cost) wins++;
         totalTrades++;
-
         sellSignals.push({ idx: i, date: dates[i], price: price });
-        trades.push({
-          type: '卖出', date: dates[i], price: execPrice.toFixed(2),
-          shares: shares, amount: revenue.toFixed(2), fee: sellFee.toFixed(2)
-        });
-
+        trades.push({ type: '卖出', date: dates[i], price: execPrice.toFixed(2), shares: shares, amount: revenue.toFixed(2), fee: sellFee.toFixed(2) });
         shares = 0;
         position = 0;
       }
     }
 
-    // 每日净值
     equity[i] = cash + shares * price;
     if (equity[i] > peakEquity) peakEquity = equity[i];
     drawdown[i] = (equity[i] - peakEquity) / peakEquity * 100;
-
-    // 日收益率
-    if (i > 0) {
-      dailyReturns.push((equity[i] - prevEquity) / prevEquity);
-    }
+    if (i > 0) dailyReturns.push((equity[i] - prevEquity) / prevEquity);
     prevEquity = equity[i];
   }
 
-  // 末尾平仓统计
   if (position === 1 && n > 0) {
     const execPrice = close[n - 1];
     const revenue = shares * execPrice;
@@ -271,38 +253,32 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
   const totalReturn = (finalEquity - capital) / capital * 100;
   const benchReturn = (close[n - 1] - close[0]) / close[0] * 100;
   const days = n;
-  const annualReturn = (Math.pow(finalEquity / capital, 252 / days) - 1) * 100;
-  const benchAnnual = (Math.pow(close[n - 1] / close[0], 252 / days) - 1) * 100;
+  const annualReturn = days > 0 ? (Math.pow(finalEquity / capital, 252 / days) - 1) * 100 : 0;
+  const benchAnnual = days > 0 ? (Math.pow(close[n - 1] / close[0], 252 / days) - 1) * 100 : 0;
   const maxDrawdown = Math.min(...drawdown);
 
-  // Sharpe Ratio
-  const meanRet = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
-  const stdRet = Math.sqrt(dailyReturns.reduce((a, b) => a + (b - meanRet) ** 2, 0) / dailyReturns.length);
+  const meanRet = dailyReturns.length > 0 ? dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length : 0;
+  const stdRet = dailyReturns.length > 0 ? Math.sqrt(dailyReturns.reduce((a, b) => a + (b - meanRet) ** 2, 0) / dailyReturns.length) : 0;
   const sharpe = stdRet > 0 ? meanRet / stdRet * Math.sqrt(252) : 0;
 
-  // Beta
   const benchReturns = [];
   for (let i = 1; i < n; i++) benchReturns.push((close[i] - close[i - 1]) / close[i - 1]);
-  const cov = dailyReturns.reduce((a, r, i) => a + (r - meanRet) * (benchReturns[i] - benchReturns.reduce((s, v) => s + v, 0) / benchReturns.length), 0) / dailyReturns.length;
-  const varB = benchReturns.reduce((a, v) => a + (v - benchReturns.reduce((s, x) => s + x, 0) / benchReturns.length) ** 2, 0) / benchReturns.length;
+  const benchMean = benchReturns.length > 0 ? benchReturns.reduce((s, v) => s + v, 0) / benchReturns.length : 0;
+  const cov = dailyReturns.length > 0 ? dailyReturns.reduce((a, r, i) => a + (r - meanRet) * (benchReturns[i] - benchMean), 0) / dailyReturns.length : 0;
+  const varB = benchReturns.length > 0 ? benchReturns.reduce((a, v) => a + (v - benchMean) ** 2, 0) / benchReturns.length : 0;
   const beta = varB > 0 ? cov / varB : 0;
   const alpha = annualReturn - beta * benchAnnual;
-
   const winRate = totalTrades > 0 ? wins / totalTrades * 100 : 0;
 
-  return {
-    equity, benchmark, drawdown, buySignals, sellSignals, trades,
-    totalReturn, benchReturn, alpha, beta, maxDrawdown, sharpe, winRate,
-    totalTrades, annualReturn, finalEquity,
-    shortMA, longMA
-  };
+  return { equity, benchmark, drawdown, buySignals, sellSignals, trades, totalReturn, benchReturn, alpha, beta, maxDrawdown, sharpe, winRate, totalTrades, annualReturn, finalEquity, shortMA, longMA };
 }
 
 // ---------- 渲染 ----------
 function render() {
   const meta = DATA[curStock];
   const s = meta[curAdj];
-  const dates = s.dates, close = s.close;
+  const sliced = sliceData(s.dates, s.close);
+  const dates = sliced.dates, close = sliced.close;
 
   const pShort = val('p-short');
   const pLong = val('p-long');
@@ -312,7 +288,7 @@ function render() {
 
   const bt = backtest(close, dates, pShort, pLong, capital, feeRate, slipRate);
 
-  // 统计指标（左栏列表样式）
+  // 统计指标
   const fmt = v => v >= 0 ? '+' + v.toFixed(2) + '%' : v.toFixed(2) + '%';
   const cls = v => v >= 0 ? 'pos' : 'neg';
   const stats = [
@@ -339,8 +315,7 @@ function render() {
     yAxis: { scale: true, axisLabel: { formatter: v => (v / 10000).toFixed(1) + '万' } },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
-      { name: '策略资金', type: 'line', data: bt.equity, showSymbol: false, lineStyle: { color: '#667eea', width: 2 },
-        areaStyle: { opacity: 0.08 } },
+      { name: '策略资金', type: 'line', data: bt.equity, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, areaStyle: { opacity: 0.08 } },
       { name: '基准(买入持有)', type: 'line', data: bt.benchmark, showSymbol: false, lineStyle: { color: '#e67e22', width: 2, type: 'dashed' } }
     ]
   }, true);
@@ -357,8 +332,7 @@ function render() {
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
       { name: '收盘价', type: 'line', data: close, showSymbol: false, lineStyle: { color: '#333', width: 1 },
-        markPoint: { data: [...buyMarks, ...sellMarks], symbolSize: 28, label: { fontSize: 10, color: '#fff', fontWeight: 'bold' } }
-      },
+        markPoint: { data: [...buyMarks, ...sellMarks], symbolSize: 28, label: { fontSize: 10, color: '#fff', fontWeight: 'bold' } } },
       { name: 'MA' + pShort, type: 'line', data: bt.shortMA, showSymbol: false, lineStyle: { color: '#e74c3c', width: 1.5 } },
       { name: 'MA' + pLong, type: 'line', data: bt.longMA, showSymbol: false, lineStyle: { color: '#2ecc71', width: 1.5 } }
     ]
@@ -371,10 +345,7 @@ function render() {
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { axisLabel: { formatter: v => v + '%' } },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
-    series: [{
-      type: 'line', data: bt.drawdown, showSymbol: false, lineStyle: { color: '#e74c3c', width: 1.5 },
-      areaStyle: { color: 'rgba(231,76,60,0.15)' }
-    }]
+    series: [{ type: 'line', data: bt.drawdown, showSymbol: false, lineStyle: { color: '#e74c3c', width: 1.5 }, areaStyle: { color: 'rgba(231,76,60,0.15)' } }]
   }, true);
 
   // 交易明细表
@@ -386,7 +357,6 @@ function render() {
 
 // ---------- 初始化 ----------
 function init() {
-  // 股票选择
   const sel = document.getElementById('stockSelect');
   Object.keys(DATA).forEach(name => {
     const opt = document.createElement('option');
@@ -395,38 +365,24 @@ function init() {
     sel.appendChild(opt);
   });
 
-  // 图表实例
   charts.equity = echarts.init(document.getElementById('c-equity'));
   charts.price = echarts.init(document.getElementById('c-price'));
   charts.drawdown = echarts.init(document.getElementById('c-drawdown'));
 
-  // 事件绑定
   sel.addEventListener('change', () => { curStock = sel.value; render(); });
-  document.getElementById('adjToggle').addEventListener('change', e => {
-    curAdj = e.target.checked ? 'qfq' : 'nofq'; render();
-  });
+  document.getElementById('adjToggle').addEventListener('change', e => { curAdj = e.target.checked ? 'qfq' : 'nofq'; render(); });
+  document.getElementById('rangeSelect').addEventListener('change', e => { curRange = e.target.value; render(); });
 
-  // 参数滑块
-  const sliders = [
-    ['p-short', 'v-short'], ['p-long', 'v-long'],
-    ['p-fee', 'v-fee'], ['p-slip', 'v-slip']
-  ];
+  const sliders = [['p-short', 'v-short'], ['p-long', 'v-long'], ['p-fee', 'v-fee'], ['p-slip', 'v-slip']];
   sliders.forEach(([pid, vid]) => {
     const el = document.getElementById(pid);
-    el.addEventListener('input', () => {
-      document.getElementById(vid).textContent = el.value;
-      render();
-    });
+    el.addEventListener('input', () => { document.getElementById(vid).textContent = el.value; render(); });
   });
   document.getElementById('p-capital').addEventListener('input', render);
 
-  window.addEventListener('resize', () => {
-    Object.values(charts).forEach(c => c && c.resize());
-  });
-
+  window.addEventListener('resize', () => Object.values(charts).forEach(c => c && c.resize()));
   render();
 }
-
 init();
 </script>
 </body>
