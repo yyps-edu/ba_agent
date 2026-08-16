@@ -8,7 +8,7 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #333; }
-.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+.container { max-width: 1700px; margin: 0 auto; padding: 20px; }
 .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 24px 30px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .header h1 { font-size: 26px; }
 .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
@@ -19,25 +19,37 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .adj-switch .slider::after { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.25s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 .adj-switch input:checked + .slider { background: #2ecc71; }
 .adj-switch input:checked + .slider::after { transform: translateX(22px); }
-.params-bar { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; padding: 12px 16px; background: #f8f9ff; border-radius: 10px; border: 1px solid #e0e6f0; }
-.param { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
-.param label { white-space: nowrap; display: flex; align-items: center; gap: 4px; }
-.param label span { color: #667eea; font-weight: bold; min-width: 36px; text-align: center; }
-.param input[type=range] { width: 120px; accent-color: #667eea; cursor: pointer; }
-.param input[type=number] { width: 90px; padding: 4px 8px; border: 1px solid #dcdfe6; border-radius: 4px; font-size: 13px; }
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-.stat-card { background: #fff; padding: 16px 10px; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
-.stat-card .label { color: #888; font-size: 13px; margin-bottom: 6px; white-space: nowrap; }
-.stat-card .value { font-size: 18px; font-weight: bold; white-space: nowrap; }
-.stat-card .value.pos { color: #e74c3c; }
-.stat-card .value.neg { color: #2ecc71; }
-.stat-card .value.neutral { color: #667eea; }
-.charts-grid { display: flex; flex-wrap: wrap; gap: 20px; }
-.chart-box { flex: 0 0 100%; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+
+/* ========== 两栏布局 ========== */
+.main-layout { display: flex; gap: 20px; align-items: flex-start; }
+
+/* ---------- 左栏：参数 + 指标 ---------- */
+.sidebar { flex: 0 0 340px; display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+.panel { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.panel-title { font-size: 15px; color: #333; margin-bottom: 14px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
+.params-list { display: flex; flex-direction: column; gap: 14px; }
+.param { display: flex; flex-direction: column; gap: 4px; }
+.param-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #555; }
+.param label { white-space: nowrap; }
+.param label span { color: #667eea; font-weight: bold; min-width: 36px; display: inline-block; text-align: right; }
+.param input[type=range] { width: 100%; accent-color: #667eea; cursor: pointer; }
+.param input[type=number] { width: 100%; padding: 6px 10px; border: 1px solid #dcdfe6; border-radius: 6px; font-size: 13px; margin-top: 2px; }
+
+.stats-list { display: flex; flex-direction: column; gap: 10px; }
+.stat-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8f9ff; border-radius: 8px; }
+.stat-item .label { color: #666; font-size: 13px; white-space: nowrap; }
+.stat-item .value { font-size: 15px; font-weight: bold; white-space: nowrap; }
+.stat-item .value.pos { color: #e74c3c; }
+.stat-item .value.neg { color: #2ecc71; }
+.stat-item .value.neutral { color: #667eea; }
+
+/* ---------- 右栏：图表 ---------- */
+.main-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.chart-box { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
 .chart-title { font-size: 15px; color: #333; margin-bottom: 8px; font-weight: bold; border-left: 4px solid #667eea; padding-left: 10px; }
-.chart { width: 100%; height: 380px; }
-.chart.tall { height: 460px; }
-.footer { text-align: center; padding: 24px; color: #999; font-size: 13px; }
+.chart { width: 100%; height: 400px; }
+.chart.tall { height: 500px; }
+
 .trade-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
 .trade-table th { background: #f8f9ff; padding: 8px 10px; text-align: left; color: #555; font-weight: 600; border-bottom: 2px solid #e0e6f0; white-space: nowrap; }
 .trade-table td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
@@ -45,7 +57,13 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
 .buy-tag { color: #e74c3c; font-weight: bold; }
 .sell-tag { color: #2ecc71; font-weight: bold; }
 .table-wrap { max-height: 300px; overflow-y: auto; border-radius: 8px; border: 1px solid #f0f0f0; }
-@media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .param input[type=range] { width: 90px; } }
+
+.footer { text-align: center; padding: 24px; color: #999; font-size: 13px; margin-top: 20px; }
+
+@media (max-width: 1100px) {
+  .main-layout { flex-direction: column; }
+  .sidebar { position: static; flex: 0 0 auto; width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -61,46 +79,68 @@ body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; color: #
     </div>
   </div>
 
-  <div class="params-bar">
-    <div class="param"><label>短期均线 <span id="v-short">5</span></label><input type="range" id="p-short" min="2" max="60" value="5"></div>
-    <div class="param"><label>长期均线 <span id="v-long">20</span></label><input type="range" id="p-long" min="5" max="120" value="20"></div>
-    <div class="param"><label>初始资金</label><input type="number" id="p-capital" value="100000" min="1000" step="1000"></div>
-    <div class="param"><label>手续费(%) <span id="v-fee">0.03</span></label><input type="range" id="p-fee" min="0" max="0.5" step="0.01" value="0.03"></div>
-    <div class="param"><label>滑点(%) <span id="v-slip">0.05</span></label><input type="range" id="p-slip" min="0" max="0.5" step="0.01" value="0.05"></div>
-  </div>
-
-  <div class="stats-grid" id="stats"></div>
-
-  <div class="charts-grid">
-    <div class="chart-box">
-      <div class="chart-title">资金曲线：策略 vs 基准（买入持有）</div>
-      <div id="c-equity" class="chart"></div>
-    </div>
-
-    <div class="chart-box">
-      <div class="chart-title">价格走势 + 均线 + 买卖信号</div>
-      <div id="c-price" class="chart tall"></div>
-    </div>
-
-    <div class="chart-box">
-      <div class="chart-title">回撤曲线</div>
-      <div id="c-drawdown" class="chart"></div>
-    </div>
-
-    <div class="chart-box">
-      <div class="chart-title">月度收益对比</div>
-      <div id="c-monthly" class="chart"></div>
-    </div>
-
-    <div class="chart-box">
-      <div class="chart-title">交易明细</div>
-      <div class="table-wrap">
-        <table class="trade-table" id="tradeTable">
-          <thead><tr><th>#</th><th>方向</th><th>日期</th><th>价格</th><th>数量</th><th>金额</th><th>手续费</th></tr></thead>
-          <tbody></tbody>
-        </table>
+  <div class="main-layout">
+    <!-- ========== 左栏 ========== -->
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="panel-title">策略参数</div>
+        <div class="params-list">
+          <div class="param">
+            <div class="param-row"><label>短期均线周期</label><label><span id="v-short">5</span> 日</label></div>
+            <input type="range" id="p-short" min="2" max="60" value="5">
+          </div>
+          <div class="param">
+            <div class="param-row"><label>长期均线周期</label><label><span id="v-long">20</span> 日</label></div>
+            <input type="range" id="p-long" min="5" max="120" value="20">
+          </div>
+          <div class="param">
+            <div class="param-row"><label>初始资金</label><label>元</label></div>
+            <input type="number" id="p-capital" value="100000" min="1000" step="1000">
+          </div>
+          <div class="param">
+            <div class="param-row"><label>手续费率</label><label><span id="v-fee">0.03</span> %</label></div>
+            <input type="range" id="p-fee" min="0" max="0.5" step="0.01" value="0.03">
+          </div>
+          <div class="param">
+            <div class="param-row"><label>滑点</label><label><span id="v-slip">0.05</span> %</label></div>
+            <input type="range" id="p-slip" min="0" max="0.5" step="0.01" value="0.05">
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div class="panel">
+        <div class="panel-title">收益指标</div>
+        <div class="stats-list" id="stats"></div>
+      </div>
+    </aside>
+
+    <!-- ========== 右栏：图表 ========== -->
+    <main class="main-content">
+      <div class="chart-box">
+        <div class="chart-title">资金曲线：策略 vs 基准（买入持有）</div>
+        <div id="c-equity" class="chart"></div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">价格走势 + 均线 + 买卖信号</div>
+        <div id="c-price" class="chart tall"></div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">回撤曲线</div>
+        <div id="c-drawdown" class="chart"></div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">交易明细</div>
+        <div class="table-wrap">
+          <table class="trade-table" id="tradeTable">
+            <thead><tr><th>#</th><th>方向</th><th>日期</th><th>价格</th><th>数量</th><th>金额</th><th>手续费</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
   </div>
 
   <div class="footer">© 2026 均线策略回测看板 | 策略：双均线交叉 | 数据来源：AKShare | 基于 ECharts</div>
@@ -258,37 +298,6 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
   };
 }
 
-// ---------- 月度收益 ----------
-function monthlyReturns(dates, equity, capital) {
-  const monthly = {};
-  for (let i = 0; i < dates.length; i++) {
-    const ym = dates[i].slice(0, 7);
-    if (!monthly[ym]) monthly[ym] = { start: equity[i], end: equity[i] };
-    monthly[ym].end = equity[i];
-  }
-  const labels = Object.keys(monthly).sort();
-  const rets = labels.map(ym => {
-    const prev = labels.indexOf(ym) > 0 ? monthly[labels[labels.indexOf(ym) - 1]].end : capital;
-    return (monthly[ym].end - prev) / prev * 100;
-  });
-  return { labels, rets };
-}
-
-function monthlyBench(dates, close, capital) {
-  const monthly = {};
-  for (let i = 0; i < dates.length; i++) {
-    const ym = dates[i].slice(0, 7);
-    if (!monthly[ym]) monthly[ym] = { start: close[i], end: close[i] };
-    monthly[ym].end = close[i];
-  }
-  const labels = Object.keys(monthly).sort();
-  const rets = labels.map(ym => {
-    const prev = labels.indexOf(ym) > 0 ? monthly[labels[labels.indexOf(ym) - 1]].end : close[0];
-    return (monthly[ym].end - prev) / prev * 100;
-  });
-  return rets;
-}
-
 // ---------- 渲染 ----------
 function render() {
   const meta = DATA[curStock];
@@ -303,21 +312,23 @@ function render() {
 
   const bt = backtest(close, dates, pShort, pLong, capital, feeRate, slipRate);
 
-  // 统计卡片
+  // 统计指标（左栏列表样式）
   const fmt = v => v >= 0 ? '+' + v.toFixed(2) + '%' : v.toFixed(2) + '%';
   const cls = v => v >= 0 ? 'pos' : 'neg';
   const stats = [
     ['策略总收益', fmt(bt.totalReturn), cls(bt.totalReturn)],
     ['基准总收益', fmt(bt.benchReturn), cls(bt.benchReturn)],
     ['超额收益(Alpha)', fmt(bt.alpha), cls(bt.alpha)],
+    ['年化收益', fmt(bt.annualReturn), cls(bt.annualReturn)],
     ['最大回撤', bt.maxDrawdown.toFixed(2) + '%', 'neg'],
-    ['Sharpe比率', bt.sharpe.toFixed(3), 'neutral'],
+    ['Sharpe 比率', bt.sharpe.toFixed(3), 'neutral'],
+    ['Beta', bt.beta.toFixed(3), 'neutral'],
     ['胜率', bt.winRate.toFixed(1) + '%', 'neutral'],
     ['交易次数', bt.totalTrades + ' 次', 'neutral'],
-    ['年化收益', fmt(bt.annualReturn), cls(bt.annualReturn)],
+    ['期末资产', (bt.finalEquity / 10000).toFixed(2) + ' 万', 'neutral'],
   ];
   document.getElementById('stats').innerHTML = stats.map(([l, v, c]) =>
-    `<div class="stat-card"><div class="label">${l}</div><div class="value ${c}">${v}</div></div>`).join('');
+    `<div class="stat-item"><div class="label">${l}</div><div class="value ${c}">${v}</div></div>`).join('');
 
   // 资金曲线
   charts.equity.setOption({
@@ -366,26 +377,6 @@ function render() {
     }]
   }, true);
 
-  // 月度收益对比
-  const mStrat = monthlyReturns(dates, bt.equity, capital);
-  const mBench = monthlyBench(dates, close, capital);
-  charts.monthly.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: params => {
-      let s = params[0].axisValue + '<br/>';
-      params.forEach(p => s += `${p.marker}${p.seriesName}: ${p.value.toFixed(2)}%<br/>`);
-      return s;
-    }},
-    legend: { data: ['策略月度收益', '基准月度收益'], top: 0, textStyle: { fontSize: 12 } },
-    grid: { left: 50, right: 20, bottom: 56, top: 30 },
-    xAxis: { type: 'category', data: mStrat.labels, axisLabel: { formatter: v => v.slice(2), rotate: 45 } },
-    yAxis: { axisLabel: { formatter: v => v + '%' } },
-    dataZoom: [{ type: 'inside', start: 0, end: 100 }],
-    series: [
-      { name: '策略月度收益', type: 'bar', data: mStrat.rets, itemStyle: { color: v => v.value >= 0 ? '#e74c3c' : '#2ecc71' } },
-      { name: '基准月度收益', type: 'bar', data: mBench, itemStyle: { color: v => v.value >= 0 ? 'rgba(230,126,34,0.5)' : 'rgba(52,152,219,0.5)' } }
-    ]
-  }, true);
-
   // 交易明细表
   const tbody = document.querySelector('#tradeTable tbody');
   tbody.innerHTML = bt.trades.map((t, i) =>
@@ -408,7 +399,6 @@ function init() {
   charts.equity = echarts.init(document.getElementById('c-equity'));
   charts.price = echarts.init(document.getElementById('c-price'));
   charts.drawdown = echarts.init(document.getElementById('c-drawdown'));
-  charts.monthly = echarts.init(document.getElementById('c-monthly'));
 
   // 事件绑定
   sel.addEventListener('change', () => { curStock = sel.value; render(); });
