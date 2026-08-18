@@ -310,7 +310,10 @@ function render() {
   // 资金曲线
   charts.equity.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
-    legend: { data: ['策略资金', '基准(买入持有)'], top: 0, textStyle: { fontSize: 12 } },
+    legend: { data: [
+        { name: '策略资金', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#667eea', lineStyle: { type: 'solid', width: 2, color: '#667eea' } } },
+        { name: '基准(买入持有)', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#e67e22', lineStyle: { type: 'dashed', width: 2, color: '#e67e22' } } }
+      ], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: 70, right: 40, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => (v / 10000).toFixed(1) + '万' } },
@@ -326,7 +329,11 @@ function render() {
   const sellMarks = bt.sellSignals.map(s => ({ coord: [s.date, s.price], value: '卖', itemStyle: { color: '#2ecc71' } }));
   charts.price.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
-    legend: { data: ['收盘价', 'MA' + pShort, 'MA' + pLong], top: 0, textStyle: { fontSize: 12 } },
+    legend: { data: [
+        { name: '收盘价', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#333', lineStyle: { type: 'solid', width: 1, color: '#333' } } },
+        { name: 'MA' + pShort, icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#e74c3c', lineStyle: { type: 'solid', width: 1.5, color: '#e74c3c' } } },
+        { name: 'MA' + pLong, icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#2ecc71', lineStyle: { type: 'solid', width: 1.5, color: '#2ecc71' } } }
+      ], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: 60, right: 60, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => Number(v).toFixed(2) } },
