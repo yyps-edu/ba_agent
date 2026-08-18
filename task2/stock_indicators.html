@@ -256,7 +256,7 @@ function render() {
     tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
     legend: { data: [
       '日K',
-      { name: '收盘价', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#667eea', lineStyle: { type: 'solid', width: 1.5, color: '#667eea' } } },
+      '收盘价',
       '成交量'
     ], top: 0, textStyle: { fontSize: 12 } },
     axisPointer: { link: [{ xAxisIndex: 'all' }] },
@@ -284,8 +284,8 @@ function render() {
   charts.ma.setOption({
     tooltip: tip(),
     legend: { data: [
-      { name: 'MA' + pMa, icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#5470c6', lineStyle: { type: 'solid', width: 2, color: '#5470c6' } } },
-      { name: 'MA' + pMa2, icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#91cc75', lineStyle: { type: 'solid', width: 2, color: '#91cc75' } } }
+      'MA' + pMa,
+      'MA' + pMa2
     ], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
@@ -319,8 +319,8 @@ function render() {
       }
     },
     legend: { data: [
-      { name: '不复权收盘', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#667eea', lineStyle: { type: 'solid', width: 2, color: '#667eea' } } },
-      { name: '前复权收盘', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#e67e22', lineStyle: { type: 'solid', width: 2, color: '#e67e22' } } }
+      '不复权收盘',
+      '前复权收盘'
     ], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: { type: 'category', data: shareDates, axisLabel: { formatter: v => v.slice(5) } },
@@ -356,7 +356,7 @@ function render() {
   const r = rsiCalc(close, pRsi);
   charts.rsi.setOption({
     tooltip: tip(), legend: { data: [
-      { name: 'RSI', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#667eea', lineStyle: { type: 'solid', width: 2, color: '#667eea' } } }
+      'RSI'
     ], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { min: 0, max: 100 },
@@ -368,8 +368,8 @@ function render() {
   const m = macdCalc(close, pFast, pSlow, pSig);
   charts.macd.setOption({
     tooltip: tip(), legend: { data: [
-      { name: 'DIF', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#3498db', lineStyle: { type: 'solid', width: 1.5, color: '#3498db' } } },
-      { name: 'DEA', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#e74c3c', lineStyle: { type: 'solid', width: 1.5, color: '#e74c3c' } } },
+      'DIF',
+      'DEA',
       'MACD柱'
     ], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
@@ -386,10 +386,10 @@ function render() {
   const b = boll(close, pBb, pBbm);
   charts.bb.setOption({
     tooltip: tip(), legend: { data: [
-      { name: '收盘价', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#667eea', lineStyle: { type: 'solid', width: 2, color: '#667eea' } } },
-      { name: '上轨', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#e74c3c', lineStyle: { type: 'dashed', width: 1, color: '#e74c3c' } } },
-      { name: '中轨', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#f39c12', lineStyle: { type: 'solid', width: 1, color: '#f39c12' } } },
-      { name: '下轨', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#2ecc71', lineStyle: { type: 'dashed', width: 1, color: '#2ecc71' } } }
+      '收盘价',
+      '上轨',
+      '中轨',
+      '下轨'
     ], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
@@ -406,9 +406,9 @@ function render() {
   const kd = kdjCalc(ohlc, pKdj);
   charts.kdj.setOption({
     tooltip: tip(), legend: { data: [
-      { name: 'K', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#3498db', lineStyle: { type: 'solid', width: 1.5, color: '#3498db' } } },
-      { name: 'D', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#e74c3c', lineStyle: { type: 'solid', width: 1.5, color: '#e74c3c' } } },
-      { name: 'J', icon: 'path://M0 5 L8 5 M9 5 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0 M12 5 L20 5', itemStyle: { color: '#2ecc71', lineStyle: { type: 'solid', width: 1.5, color: '#2ecc71' } } }
+      'K',
+      'D',
+      'J'
     ], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true },
