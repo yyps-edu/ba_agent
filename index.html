@@ -3,159 +3,149 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>量化交易看板中心 · 技术指标 | 均线策略 | 海龟系统</title>
+<title>股票交易看板</title>
 <style>
 :root {
-  --bg-0:        #0b1120;  /* 深海军蓝：参考 tradingagents */
-  --bg-1:        #0f172a;
-  --bg-card:     #111a2e;
-  --bg-card-2:   #172241;
-  --border:      #1e2a4a;
-  --border-2:    #2a3a5f;
-  --text-1:      #e5edff;
-  --text-2:      #97a4c2;
-  --text-3:      #6b7a99;
-  --gold:        #f5b301;  /* TradingAgents CN 金色主视觉 */
-  --gold-2:      #ffd166;
-  --gold-soft:   rgba(245,179,1,0.12);
-  --green:       #22c55e;
-  --green-soft:  rgba(34,197,94,0.12);
-  --red:         #ef4444;
-  --red-soft:    rgba(239,68,68,0.12);
-  --purple:      #8b5cf6;
-  --purple-soft: rgba(139,92,246,0.12);
-  --blue:        #3b82f6;
-  --blue-soft:   rgba(59,130,246,0.12);
-  --search-bg:   #0f1a33;
-  --nav-h:       64px;
+ --bg-0: #f5f7fb;
+ --bg-1: #ffffff;
+ --bg-card: #ffffff;
+ --bg-card-2: #f0f4fa;
+ --border: #e3e8f0;
+ --border-2: #d3dbe8;
+ --text-1: #1f2937;
+ --text-2: #5b6578;
+ --text-3: #8792a6;
+ --brand: #2b4c9e;
+ --accent: #c4921a;
+ --green: #15803d;
+ --green-soft: rgba(21,128,61,0.10);
+ --red: #b91c1c;
+ --red-soft: rgba(185,28,28,0.10);
+ --purple: #6d28d9;
+ --purple-soft: rgba(109,40,217,0.10);
+ --blue: #2b4c9e;
+ --blue-soft: rgba(43,76,158,0.10);
+ --search-bg: #ffffff;
+ --nav-h: 64px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { background: var(--bg-0); color: var(--text-1); }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.55;
-  min-height: 100vh;
-  /* 细微的深色噪点渐变，类似 tradingagents 的高级感 */
-  background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(245,179,1,0.08), transparent 60%),
-    radial-gradient(900px 500px at 0% 20%, rgba(59,130,246,0.07), transparent 60%),
-    var(--bg-0);
+ font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+ line-height: 1.55;
+ min-height: 100vh;
+ /* 细微的深色噪点渐变，类似 tradingagents 的高级感 */
+
 }
 a { color: inherit; text-decoration: none; }
 
 /* ============ 顶部导航 ============ */
 .nav {
-  position: sticky; top: 0; z-index: 50;
-  height: var(--nav-h);
-  background: rgba(11,17,32,0.72);
-  backdrop-filter: saturate(140%) blur(10px);
-  -webkit-backdrop-filter: saturate(140%) blur(10px);
-  border-bottom: 1px solid var(--border);
+ position: sticky; top: 0; z-index: 50;
+ height: var(--nav-h);
+ background: rgba(255,255,255,0.92);
+ backdrop-filter: saturate(140%) blur(10px);
+ -webkit-backdrop-filter: saturate(140%) blur(10px);
+ border-bottom: 1px solid var(--border);
 }
 .nav-inner {
-  max-width: 1200px; margin: 0 auto; padding: 0 24px;
-  height: 100%; display: flex; align-items: center; gap: 32px;
+ max-width: 1200px; margin: 0 auto; padding: 0 24px;
+ height: 100%; display: flex; align-items: center; gap: 32px;
 }
 .brand {
-  display: inline-flex; align-items: center; gap: 10px;
-  font-weight: 800; font-size: 18px; letter-spacing: 0.5px;
-  color: var(--text-1);
+ display: inline-flex; align-items: center; gap: 10px;
+ font-weight: 800; font-size: 18px; letter-spacing: 0.5px;
+ color: var(--text-1);
 }
 .brand .logo {
-  width: 28px; height: 28px; border-radius: 7px;
-  display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--gold) 0%, #d97706 100%);
-  color: #1a1100; font-weight: 900;
-  box-shadow: 0 4px 18px rgba(245,179,1,0.25);
+ width: 28px; height: 28px; border-radius: 7px;
+ display: grid; place-items: center;
+ background: var(--brand);
+ color: #fff; font-weight: 900;
 }
-.brand .gold-accent { color: var(--gold); }
 
 .nav-links { display: flex; gap: 22px; font-size: 14px; color: var(--text-2); }
 .nav-links a { transition: color 0.2s ease; }
-.nav-links a:hover, .nav-links a.active { color: var(--text-1); }
-.nav-links a.active { color: var(--gold); font-weight: 600; }
+.nav-links a:hover { color: var(--brand); }
+.nav-links a.active { color: var(--brand); font-weight: 600; }
 
 .nav-spacer { flex: 1; }
 
 .nav-actions { display: flex; align-items: center; gap: 12px; }
 .search-btn {
-  height: 36px; padding: 0 14px;
-  background: transparent; color: var(--text-2);
-  border: 1px solid var(--border); border-radius: 10px;
-  cursor: pointer; font-size: 13px;
-  transition: all 0.2s ease;
+ height: 36px; padding: 0 14px;
+ background: transparent; color: var(--text-2);
+ border: 1px solid var(--border); border-radius: 10px;
+ cursor: pointer; font-size: 13px;
+ transition: all 0.2s ease;
 }
 .search-btn:hover { color: var(--text-1); border-color: var(--border-2); }
 
 .cta {
-  height: 36px; padding: 0 16px; border-radius: 10px;
-  background: var(--gold); color: #1a1100; font-weight: 700; font-size: 13px;
-  border: none; cursor: pointer;
-  transition: all 0.2s ease;
+ height: 36px; padding: 0 16px; border-radius: 10px;
+ background: var(--brand); color: #fff; font-weight: 700; font-size: 13px;
+ border: none; cursor: pointer;
+ transition: all 0.2s ease;
 }
-.cta:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(245,179,1,0.25); }
+.cta:hover { transform: translateY(-1px); opacity: 0.92; }
 
 /* ============ Hero ============ */
 .hero {
-  max-width: 1200px; margin: 0 auto;
-  padding: 72px 24px 36px; text-align: center;
+ max-width: 1200px; margin: 0 auto;
+ padding: 72px 24px 36px; text-align: center;
 }
 .hero h1 {
-  font-size: 48px; font-weight: 800; letter-spacing: 1.5px;
-  /* 金色渐变文字，类似 tradingagents 的 AI 智能股票分析 */
-  background: linear-gradient(180deg, var(--gold-2) 0%, var(--gold) 55%, #b7791f 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 18px;
+ font-size: 40px; font-weight: 800; letter-spacing: 1.5px;
+ color: var(--brand);
+ margin-bottom: 16px;
 }
 .hero .subtitle {
-  max-width: 820px; margin: 0 auto 12px;
-  font-size: 17px; color: var(--text-2); line-height: 1.8;
+ max-width: 820px; margin: 0 auto 12px;
+ font-size: 17px; color: var(--text-2); line-height: 1.8;
 }
 .hero .stat {
-  display: inline-block; margin-top: 6px;
-  font-size: 14px; color: var(--text-3);
+ display: inline-block; margin-top: 6px;
+ font-size: 14px; color: var(--text-3);
 }
-.hero .stat b { color: var(--text-1); font-weight: 700; }
+.hero .stat b { color: var(--brand); font-weight: 700; }
 
 /* ============ Tabs 切换 + 搜索 ============ */
 .control {
-  max-width: 1200px; margin: 0 auto; padding: 20px 24px 0;
-  display: flex; flex-direction: column; gap: 18px; align-items: center;
+ max-width: 1200px; margin: 0 auto; padding: 20px 24px 0;
+ display: flex; flex-direction: column; gap: 18px; align-items: center;
 }
 .tabs { display: inline-flex; gap: 10px; }
 .tab {
-  padding: 9px 18px; border-radius: 999px;
-  background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text-2); font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s ease;
+ padding: 9px 18px; border-radius: 999px;
+ background: var(--bg-card); border: 1px solid var(--border);
+ color: var(--text-2); font-size: 14px; font-weight: 600;
+ cursor: pointer; transition: all 0.2s ease;
 }
-.tab:hover { color: var(--text-1); border-color: var(--border-2); }
+.tab:hover { color: var(--brand); border-color: #bcd0f5; }
 .tab .count { font-size: 12px; color: var(--text-3); margin-left: 4px; font-weight: 500; }
 .tab.active {
-  background: var(--gold); color: #1a1100; border-color: var(--gold);
-  box-shadow: 0 6px 18px rgba(245,179,1,0.22);
+ background: var(--brand); color: #fff; border-color: var(--brand);
 }
-.tab.active .count { color: #4a3800; }
+.tab.active .count { color: #cfe0ff; }
 
 .searchbox {
-  position: relative; width: 100%; max-width: 640px;
+ position: relative; width: 100%; max-width: 640px;
 }
 .searchbox svg {
-  position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
-  color: var(--text-3);
+ position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+ color: var(--text-3);
 }
 .searchbox input {
-  width: 100%;
-  height: 52px; padding: 0 20px 0 50px;
-  background: var(--search-bg);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  color: var(--text-1);
-  font-size: 15px;
-  outline: none;
-  transition: all 0.2s ease;
+ width: 100%;
+ height: 52px; padding: 0 20px 0 50px;
+ background: var(--search-bg);
+ border: 1px solid var(--border);
+ border-radius: 14px;
+ color: var(--text-1);
+ font-size: 15px;
+ outline: none;
+ transition: all 0.2s ease;
 }
 .searchbox input::placeholder { color: var(--text-3); }
 .searchbox input:focus { border-color: var(--gold); box-shadow: 0 0 0 4px var(--gold-soft); }
@@ -163,110 +153,110 @@ a { color: inherit; text-decoration: none; }
 /* ============ 卡片网格 ============ */
 .cards-wrap { max-width: 1200px; margin: 0 auto; padding: 32px 24px 80px; }
 .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 20px;
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+ gap: 20px;
 }
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-  display: flex; flex-direction: column;
-  overflow: hidden;
-  position: relative;
+ background: var(--bg-card);
+ border: 1px solid var(--border);
+ border-radius: 16px;
+ transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+ display: flex; flex-direction: column;
+ overflow: hidden;
+ position: relative;
 }
 .card::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 40%);
+ content: ''; position: absolute; inset: 0; pointer-events: none;
+ background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 40%);
 }
 .card:hover {
-  transform: translateY(-4px);
-  border-color: var(--border-2);
-  background: var(--bg-card-2);
-  box-shadow: 0 18px 50px rgba(0,0,0,0.4);
+ transform: translateY(-4px);
+ border-color: var(--border-2);
+ background: var(--bg-card-2);
+ box-shadow: 0 18px 50px rgba(0,0,0,0.4);
 }
 .card-head {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  padding: 20px 22px 12px;
+ display: flex; align-items: flex-start; justify-content: space-between;
+ padding: 20px 22px 12px;
 }
 .card-title-area { display: flex; flex-direction: column; gap: 6px; }
 .card-title {
-  font-size: 18px; font-weight: 700; color: var(--text-1);
-  display: inline-flex; align-items: center; gap: 10px;
+ font-size: 18px; font-weight: 700; color: var(--text-1);
+ display: inline-flex; align-items: center; gap: 10px;
 }
 .card-title .emoji {
-  width: 36px; height: 36px; border-radius: 10px;
-  display: grid; place-items: center; font-size: 20px;
-  background: rgba(139,92,246,0.12);
+ width: 36px; height: 36px; border-radius: 10px;
+ display: grid; place-items: center; font-size: 20px;
+ background: rgba(139,92,246,0.12);
 }
 .card-code { font-size: 13px; color: var(--text-3); font-weight: 500; }
 
 .badge {
-  font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
-  padding: 4px 12px; border-radius: 999px;
-  border: 1px solid transparent;
-  white-space: nowrap;
+ font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
+ padding: 4px 12px; border-radius: 999px;
+ border: 1px solid transparent;
+ white-space: nowrap;
 }
 .badge-indicators { color: var(--purple); background: var(--purple-soft); border-color: rgba(139,92,246,0.28); }
-.badge-ma         { color: var(--green);  background: var(--green-soft);  border-color: rgba(34,197,94,0.28); }
-.badge-turtle     { color: var(--gold);   background: var(--gold-soft);   border-color: rgba(245,179,1,0.28); }
+.badge-ma { color: var(--green); background: var(--green-soft); border-color: rgba(34,197,94,0.28); }
+.badge-turtle { color: var(--accent); background: #fbf6ea; border-color: #ead9a8; }
 
 .card-metrics {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px;
-  padding: 14px 22px 18px;
-  border-top: 1px dashed var(--border);
-  border-bottom: 1px dashed var(--border);
+ display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px;
+ padding: 14px 22px 18px;
+ border-top: 1px dashed var(--border);
+ border-bottom: 1px dashed var(--border);
 }
 .metric .metric-label { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
-.metric .metric-value { font-size: 14px; font-weight: 700; color: var(--text-1); }
+.metric .metric-value { font-size: 14px; font-weight: 700; color: var(--brand); }
 .metric .metric-value.good { color: var(--green); }
 .metric .metric-value.warn { color: var(--gold); }
 .metric .metric-value.risk { color: var(--red); }
 
 .card-desc { padding: 16px 22px 4px; flex: 1; }
 .card-desc p {
-  font-size: 13.5px; color: var(--text-2); line-height: 1.75;
-  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+ font-size: 13.5px; color: var(--text-2); line-height: 1.75;
+ display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
 
 .card-tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 22px 10px; }
 .chip {
-  font-size: 12px; padding: 4px 11px; border-radius: 8px;
-  background: var(--bg-1); color: var(--text-2); border: 1px solid var(--border);
+ font-size: 12px; padding: 4px 11px; border-radius: 8px;
+ background: var(--bg-1); color: var(--text-2); border: 1px solid var(--border);
 }
 
 .card-footer {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: 8px; padding: 14px 22px 18px;
-  font-size: 13px; color: var(--text-3);
+ display: flex; align-items: center; justify-content: space-between;
+ margin-top: 8px; padding: 14px 22px 18px;
+ font-size: 13px; color: var(--text-3);
 }
 .card-footer .page { font-weight: 500; }
 .card-footer .go {
-  display: inline-flex; align-items: center; gap: 6px;
-  color: var(--gold); font-weight: 700;
-  transition: transform 0.2s ease;
+ display: inline-flex; align-items: center; gap: 6px;
+ color: var(--gold); font-weight: 700;
+ transition: transform 0.2s ease;
 }
 .card:hover .go { transform: translateX(3px); }
 
 /* ============ Footer ============ */
 .footer {
-  max-width: 1200px; margin: 0 auto;
-  padding: 24px 24px 40px;
-  display: flex; justify-content: space-between; align-items: center;
-  border-top: 1px solid var(--border);
-  color: var(--text-3); font-size: 13px;
+ max-width: 1200px; margin: 0 auto;
+ padding: 24px 24px 40px;
+ display: flex; justify-content: space-between; align-items: center;
+ border-top: 1px solid var(--border);
+ color: var(--text-3); font-size: 13px;
 }
 .footer a:hover { color: var(--gold); }
 
 /* ============ 响应式 ============ */
 @media (max-width: 768px) {
-  .nav-links { display: none; }
-  .hero h1 { font-size: 34px; }
-  .hero .subtitle { font-size: 15px; }
-  .cards { grid-template-columns: 1fr; }
-  .card-metrics { grid-template-columns: 1fr; }
-  .footer { flex-direction: column; gap: 8px; text-align: center; }
+ .nav-links { display: none; }
+ .hero h1 { font-size: 34px; }
+ .hero .subtitle { font-size: 15px; }
+ .cards { grid-template-columns: 1fr; }
+ .card-metrics { grid-template-columns: 1fr; }
+ .footer { flex-direction: column; gap: 8px; text-align: center; }
 }
 </style>
 </head>
@@ -274,179 +264,179 @@ a { color: inherit; text-decoration: none; }
 
 <!-- ========== 顶部导航 ========== -->
 <nav class="nav">
-  <div class="nav-inner">
-    <a href="#" class="brand">
-      <span class="logo">📊</span>
-      <span>QuantDash<span class="gold-accent">CN</span></span>
-    </a>
-    <div class="nav-links">
-      <a href="#" class="active">首页</a>
-      <a href="#cards">看板</a>
-      <a href="task2/stock_indicators.html">技术指标</a>
-      <a href="task3/ma_strategy_backtest.html">均线策略</a>
-      <a href="task4/turtle_strategy_backtest.html">海龟系统</a>
-      <a href=".github/workflows/daily_data.yml">数据源</a>
-    </div>
-    <div class="nav-spacer"></div>
-    <div class="nav-actions">
-      <button class="search-btn" onclick="document.getElementById('q').focus()">🔍 搜索看板</button>
-      <a href="task2/stock_indicators.html"><button class="cta">立即查看 →</button></a>
-    </div>
-  </div>
+ <div class="nav-inner">
+ <a href="#" class="brand">
+ <span class="logo"></span>
+ <span>股票交易看板</span>
+ </a>
+ <div class="nav-links">
+ <a href="#" class="active">首页</a>
+ <a href="#cards">看板</a>
+ <a href="task2/stock_indicators.html">技术指标</a>
+ <a href="task3/ma_strategy_backtest.html">均线策略</a>
+ <a href="task4/atr_strategy_backtest.html">ATR策略</a>
+ <a href=".github/workflows/daily_data.yml">数据源</a>
+ </div>
+ <div class="nav-spacer"></div>
+ <div class="nav-actions">
+ <button class="search-btn" onclick="document.getElementById('q').focus()">🔍 搜索看板</button>
+ <a href="task2/stock_indicators.html"><button class="cta">立即查看 →</button></a>
+ </div>
+ </div>
 </nav>
 
 <!-- ========== Hero ========== -->
 <header class="hero">
-  <h1>AI 智能量化交易看板</h1>
-  <p class="subtitle">
-    基于真实 A 股行情数据构建，涵盖技术面多维度指标可视化、均线趋势跟踪策略回测、以及经典海龟交易系统评估，
-    为你提供可验证、可复现的交易研究参考。
-  </p>
-  <p class="stat">共 <b>3</b> 套专业看板 · <b>2</b> 只样本股 · 每日 <b>00:00</b> 自动刷新行情</p>
+ <h1>AI 智能量化交易看板</h1>
+ <p class="subtitle">
+ 基于真实 A 股行情数据构建，涵盖技术面多维度指标可视化、均线趋势跟踪策略回测、以及经典ATR 策略回测评估，
+ 为你提供可验证、可复现的交易研究参考。
+ </p>
+ <p class="stat">共 <b>3</b> 套专业看板 · <b>2</b> 只样本股 · 每日 <b>00:00</b> 自动刷新行情</p>
 </header>
 
 <!-- ========== Tabs + 搜索 ========== -->
 <section class="control">
-  <div class="tabs" id="tabs">
-    <div class="tab active" data-filter="all">全部<span class="count">(3)</span></div>
-    <div class="tab" data-filter="indicators">技术分析<span class="count">(1)</span></div>
-    <div class="tab" data-filter="backtest">策略回测<span class="count">(2)</span></div>
-  </div>
-  <div class="searchbox">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path>
-    </svg>
-    <input id="q" type="text" placeholder="搜索看板名称、指标或策略... 例如：K线、双均线、唐奇安通道" />
-  </div>
+ <div class="tabs" id="tabs">
+ <div class="tab active" data-filter="all">全部<span class="count">(3)</span></div>
+ <div class="tab" data-filter="indicators">技术分析<span class="count">(1)</span></div>
+ <div class="tab" data-filter="backtest">策略回测<span class="count">(2)</span></div>
+ </div>
+ <div class="searchbox">
+ <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+ <circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path>
+ </svg>
+ <input id="q" type="text" placeholder="搜索看板名称、指标或策略... 例如：K线、双均线、唐奇安通道" />
+ </div>
 </section>
 
 <!-- ========== 卡片列表 ========== -->
 <section class="cards-wrap" id="cards">
-  <div class="cards" id="cardList">
+ <div class="cards" id="cardList">
 
-    <!-- 卡片1：股票交易指标看板 -->
-    <a class="card" href="task2/stock_indicators.html" data-type="indicators" data-kw="K线 均线 RSI MACD KDJ 布林带 成交量 不复权 前复权 技术指标">
-      <div class="card-head">
-        <div class="card-title-area">
-          <div class="card-title"><span class="emoji">📈</span>股票交易指标看板</div>
-          <div class="card-code">task2 / stock_indicators.html</div>
-        </div>
-        <span class="badge badge-indicators">技术分析</span>
-      </div>
-      <div class="card-metrics">
-        <div class="metric"><div class="metric-label">核心指标</div><div class="metric-value good">8+ 个图表</div></div>
-        <div class="metric"><div class="metric-label">指标调节</div><div class="metric-value warn">支持参数滑块</div></div>
-        <div class="metric"><div class="metric-label">复权切换</div><div class="metric-value good">前复权 / 不复权</div></div>
-        <div class="metric"><div class="metric-label">数据更新</div><div class="metric-value">每日 00:00</div></div>
-      </div>
-      <div class="card-desc">
-        <p>多维度技术指标可视化分析平台，集成 K 线、双均线对比、收盘走势、日涨跌幅、RSI、MACD、布林带、KDJ 共 8 张图表，支持实时调整周期参数，tooltip 固定右侧不遮挡关键数据。</p>
-      </div>
-      <div class="card-tags">
-        <span class="chip">K线</span><span class="chip">MA均线</span>
-        <span class="chip">RSI</span><span class="chip">MACD</span>
-        <span class="chip">布林带</span><span class="chip">KDJ</span>
-      </div>
-      <div class="card-footer">
-        <span class="page">技术面研究 · Stock Indicators Dashboard</span>
-        <span class="go">打开看板 →</span>
-      </div>
-    </a>
+ <!-- 卡片1：股票交易指标看板 -->
+ <a class="card" href="task2/stock_indicators.html" data-type="indicators" data-kw="K线 均线 RSI MACD KDJ 布林带 成交量 不复权 前复权 技术指标">
+ <div class="card-head">
+ <div class="card-title-area">
+ <div class="card-title">技术指标看板</div>
+ <div class="card-code">task2 / stock_indicators.html</div>
+ </div>
+ <span class="badge badge-indicators">技术分析</span>
+ </div>
+ <div class="card-metrics">
+ <div class="metric"><div class="metric-label">核心指标</div><div class="metric-value good">8+ 个图表</div></div>
+ <div class="metric"><div class="metric-label">指标调节</div><div class="metric-value warn">支持参数滑块</div></div>
+ <div class="metric"><div class="metric-label">复权切换</div><div class="metric-value good">前复权 / 不复权</div></div>
+ <div class="metric"><div class="metric-label">数据更新</div><div class="metric-value">每日 00:00</div></div>
+ </div>
+ <div class="card-desc">
+ <p>多维度技术指标可视化分析平台，集成 K 线、双均线对比、收盘走势、日涨跌幅、RSI、MACD、布林带、KDJ 共 8 张图表，支持实时调整周期参数，tooltip 固定右侧不遮挡关键数据。</p>
+ </div>
+ <div class="card-tags">
+ <span class="chip">K线</span><span class="chip">MA均线</span>
+ <span class="chip">RSI</span><span class="chip">MACD</span>
+ <span class="chip">布林带</span><span class="chip">KDJ</span>
+ </div>
+ <div class="card-footer">
+ <span class="page">技术面研究 · Stock Indicators Dashboard</span>
+ <span class="go">打开看板 →</span>
+ </div>
+ </a>
 
-    <!-- 卡片2：均线策略回测看板 -->
-    <a class="card" href="task3/ma_strategy_backtest.html" data-type="backtest" data-kw="双均线 金叉 死叉 资金曲线 买卖信号 回测 MA 策略">
-      <div class="card-head">
-        <div class="card-title-area">
-          <div class="card-title"><span class="emoji">📊</span>均线策略回测看板</div>
-          <div class="card-code">task3 / ma_strategy_backtest.html</div>
-        </div>
-        <span class="badge badge-ma">策略回测</span>
-      </div>
-      <div class="card-metrics">
-        <div class="metric"><div class="metric-label">策略类型</div><div class="metric-value warn">双均线交叉</div></div>
-        <div class="metric"><div class="metric-label">交易成本</div><div class="metric-value">滑点 + 手续费</div></div>
-        <div class="metric"><div class="metric-label">绩效指标</div><div class="metric-value good">年化/夏普/回撤</div></div>
-        <div class="metric"><div class="metric-label">买卖信号</div><div class="metric-value warn">图标标注 ▲▼</div></div>
-      </div>
-      <div class="card-desc">
-        <p>经典双均线金叉死叉趋势跟踪策略回测，可调短/长均线、手续费、滑点，同时展示策略 vs 基准资金曲线、价格走势 + 买卖点标注、以及回撤曲线，全方位评估策略稳定性。</p>
-      </div>
-      <div class="card-tags">
-        <span class="chip">双均线</span><span class="chip">金叉死叉</span>
-        <span class="chip">资金曲线</span><span class="chip">最大回撤</span>
-      </div>
-      <div class="card-footer">
-        <span class="page">策略验证 · MA Strategy Backtest</span>
-        <span class="go">打开看板 →</span>
-      </div>
-    </a>
+ <!-- 卡片2：均线策略回测看板 -->
+ <a class="card" href="task3/ma_strategy_backtest.html" data-type="backtest" data-kw="双均线 金叉 死叉 资金曲线 买卖信号 回测 MA 策略">
+ <div class="card-head">
+ <div class="card-title-area">
+ <div class="card-title">均线策略回测</div>
+ <div class="card-code">task3 / ma_strategy_backtest.html</div>
+ </div>
+ <span class="badge badge-ma">策略回测</span>
+ </div>
+ <div class="card-metrics">
+ <div class="metric"><div class="metric-label">策略类型</div><div class="metric-value warn">双均线交叉</div></div>
+ <div class="metric"><div class="metric-label">交易成本</div><div class="metric-value">滑点 + 手续费</div></div>
+ <div class="metric"><div class="metric-label">绩效指标</div><div class="metric-value good">年化/夏普/回撤</div></div>
+ <div class="metric"><div class="metric-label">买卖信号</div><div class="metric-value warn">图标标注 ▲▼</div></div>
+ </div>
+ <div class="card-desc">
+ <p>经典双均线金叉死叉趋势跟踪策略回测，可调短/长均线、手续费、滑点，同时展示策略 vs 基准资金曲线、价格走势 + 买卖点标注、以及回撤曲线，全方位评估策略稳定性。</p>
+ </div>
+ <div class="card-tags">
+ <span class="chip">双均线</span><span class="chip">金叉死叉</span>
+ <span class="chip">资金曲线</span><span class="chip">最大回撤</span>
+ </div>
+ <div class="card-footer">
+ <span class="page">策略验证 · MA Strategy Backtest</span>
+ <span class="go">打开看板 →</span>
+ </div>
+ </a>
 
-    <!-- 卡片3：海龟策略回测看板 -->
-    <a class="card" href="task4/turtle_strategy_backtest.html" data-type="backtest" data-kw="海龟交易 唐奇安通道 突破 ATR止损 分批建仓 经典系统">
-      <div class="card-head">
-        <div class="card-title-area">
-          <div class="card-title"><span class="emoji">🐢</span>海龟策略回测看板</div>
-          <div class="card-code">task4 / turtle_strategy_backtest.html</div>
-        </div>
-        <span class="badge badge-turtle">经典系统</span>
-      </div>
-      <div class="card-metrics">
-        <div class="metric"><div class="metric-label">入出场通道</div><div class="metric-value warn">唐奇安突破</div></div>
-        <div class="metric"><div class="metric-label">止损机制</div><div class="metric-value risk">N倍 ATR 移动</div></div>
-        <div class="metric"><div class="metric-label">建仓方式</div><div class="metric-value">分批加仓 4 档</div></div>
-        <div class="metric"><div class="metric-label">ATR 图表</div><div class="metric-value good">独立波动率分析</div></div>
-      </div>
-      <div class="card-desc">
-        <p>原版海龟交易法则完整实现：入场轨突破开仓、分批建仓、波动幅度 ATR 作为仓位单位、ATR 止损止盈、出场轨突破清仓。资金曲线、买卖信号、回撤曲线、ATR 波动率四张图表联动评估。</p>
-      </div>
-      <div class="card-tags">
-        <span class="chip">唐奇安通道</span><span class="chip">突破入场</span>
-        <span class="chip">ATR止损</span><span class="chip">分批建仓</span>
-      </div>
-      <div class="card-footer">
-        <span class="page">系统评估 · Turtle Trading System</span>
-        <span class="go">打开看板 →</span>
-      </div>
-    </a>
+ <!-- 卡片3：ATR策略回测看板 -->
+ <a class="card" href="task4/atr_strategy_backtest.html" data-type="backtest" data-kw="ATR交易 唐奇安通道 突破 ATR止损 分批建仓 经典系统">
+ <div class="card-head">
+ <div class="card-title-area">
+ <div class="card-title">ATR 策略回测</div>
+ <div class="card-code">task4 / atr_strategy_backtest.html</div>
+ </div>
+ <span class="badge badge-turtle">经典系统</span>
+ </div>
+ <div class="card-metrics">
+ <div class="metric"><div class="metric-label">入出场通道</div><div class="metric-value warn">通道突破</div></div>
+ <div class="metric"><div class="metric-label">止损机制</div><div class="metric-value risk">N倍 ATR 移动</div></div>
+ <div class="metric"><div class="metric-label">建仓方式</div><div class="metric-value">分批加仓 4 档</div></div>
+ <div class="metric"><div class="metric-label">ATR 图表</div><div class="metric-value good">独立波动率分析</div></div>
+ </div>
+ <div class="card-desc">
+ <p>原版ATR交易法则完整实现：入场轨突破开仓、分批建仓、波动幅度 ATR 作为仓位单位、ATR 止损止盈、出场轨突破清仓。资金曲线、买卖信号、回撤曲线、ATR 波动率四张图表联动评估。</p>
+ </div>
+ <div class="card-tags">
+ <span class="chip">唐奇安通道</span><span class="chip">突破入场</span>
+ <span class="chip">ATR止损</span><span class="chip">分批建仓</span>
+ </div>
+ <div class="card-footer">
+ <span class="page">系统评估 · Turtle Trading System</span>
+ <span class="go">打开看板 →</span>
+ </div>
+ </a>
 
-  </div>
+ </div>
 </section>
 
 <!-- ========== Footer ========== -->
 <footer class="footer">
-  <span>© 2025 QuantDashCN · 基于 ECharts + GitHub Actions 每日自动更新</span>
-  <span><a href=".github/workflows/daily_data.yml">更新机制</a> · <a href="fetch_data.py">数据脚本</a></span>
+ <span>© 2025 股票交易看板 · 基于 ECharts + GitHub Actions 每日自动更新</span>
+ <span><a href=".github/workflows/daily_data.yml">更新机制</a> · <a href="fetch_data.py">数据脚本</a></span>
 </footer>
 
 <script>
 /* 简易 Tab 过滤 + 搜索过滤 */
 (function () {
-  const tabs  = document.querySelectorAll('#tabs .tab');
-  const cards = document.querySelectorAll('#cardList .card');
-  const input = document.getElementById('q');
-  let activeFilter = 'all';
+ const tabs = document.querySelectorAll('#tabs .tab');
+ const cards = document.querySelectorAll('#cardList .card');
+ const input = document.getElementById('q');
+ let activeFilter = 'all';
 
-  function apply() {
-    const kw = (input.value || '').trim().toLowerCase();
-    cards.forEach(card => {
-      const typeOk = (activeFilter === 'all') || (card.dataset.type === activeFilter);
-      let kwOk = true;
-      if (kw) {
-        const hay = (card.textContent + ' ' + (card.dataset.kw || '')).toLowerCase();
-        kwOk = hay.includes(kw);
-      }
-      card.style.display = (typeOk && kwOk) ? '' : 'none';
-    });
-  }
+ function apply() {
+ const kw = (input.value || '').trim().toLowerCase();
+ cards.forEach(card => {
+ const typeOk = (activeFilter === 'all') || (card.dataset.type === activeFilter);
+ let kwOk = true;
+ if (kw) {
+ const hay = (card.textContent + ' ' + (card.dataset.kw || '')).toLowerCase();
+ kwOk = hay.includes(kw);
+ }
+ card.style.display = (typeOk && kwOk) ? '' : 'none';
+ });
+ }
 
-  tabs.forEach(t => t.addEventListener('click', () => {
-    tabs.forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    activeFilter = t.dataset.filter;
-    apply();
-  }));
+ tabs.forEach(t => t.addEventListener('click', () => {
+ tabs.forEach(x => x.classList.remove('active'));
+ t.classList.add('active');
+ activeFilter = t.dataset.filter;
+ apply();
+ }));
 
-  input.addEventListener('input', apply);
+ input.addEventListener('input', apply);
 })();
 </script>
 </body>

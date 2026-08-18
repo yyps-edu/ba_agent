@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>均线策略回测</title>
+<title>ATR 策略回测</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <style>
 /* ============ 深色品牌主题（TradingAgents CN 风格统一） ============ */
@@ -22,6 +22,7 @@
  --gold-soft: rgba(245,179,1,0.12);
  --green: #15803d;
  --red: #b91c1c;
+ --orange: #e67e22;
  --purple: #6d28d9;
 }
 
@@ -127,12 +128,6 @@ body {
 .main-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 .chart-box { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); overflow: hidden; }
 .chart-title { font-size: 15px; color: var(--text-1); margin-bottom: 8px; font-weight: 700; border-left: 4px solid var(--brand); padding-left: 10px; }
-.params-bar { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; padding: 6px 10px; background: var(--bg-card-2); border-radius: 8px; border: 1px solid var(--border); }
-.params-bar .param { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); flex-direction: row; }
-.params-bar .param label { white-space: nowrap; display: flex; align-items: center; gap: 4px; }
-.params-bar .param label span { color: var(--brand); font-weight: 700; min-width: 28px; text-align: center; }
-.params-bar .param input[type=range] { width: 100px; accent-color: var(--brand); cursor: pointer; }
-.params-bar .param input[type=number] { width: 90px; padding: 4px 8px; background: var(--bg-card); color: var(--text-1); border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none; margin-top: 0; }
 .chart { width: 100%; height: 400px; }
 .chart.tall { height: 500px; }
 
@@ -142,6 +137,7 @@ body {
 .trade-table tr:hover { background: var(--bg-1); }
 .buy-tag { color: var(--red); font-weight: 700; }
 .sell-tag { color: var(--green); font-weight: 700; }
+.stop-tag { color: var(--orange); font-weight: 700; }
 .table-wrap { max-height: 300px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); }
 
 .footer { text-align: center; padding: 24px 20px 32px; color: var(--text-3); font-size: 13px; margin-top: 20px; border-top: 1px solid var(--border); }
@@ -167,20 +163,20 @@ body {
  <div class="q-nav-links">
  <a href="../index.html">首页</a>
  <a href="../task2/stock_indicators.html">技术指标</a>
- <a href="../task3/ma_strategy_backtest.html" class="active">均线策略</a>
- <a href="../task4/atr_strategy_backtest.html">ATR 策略</a>
+ <a href="../task3/ma_strategy_backtest.html">均线策略</a>
+ <a href="../task4/atr_strategy_backtest.html" class="active">ATR 策略</a>
  <a href="../.github/workflows/daily_data.yml">数据源</a>
  </div>
  <div class="q-nav-spacer"></div>
  <span class="q-page-label" aria-label="当前页面">
- 均线策略回测
+ ATR 策略回测
  </span>
  </div>
 </nav>
 
 <div class="container">
  <div class="header">
- <h1> 均线策略回测</h1>
+ <h1>ATR 策略回测</h1>
  <div class="header-right">
  <div class="adj-switch">
  <span>前复权</span>
@@ -197,12 +193,24 @@ body {
  <div class="panel-title">策略参数</div>
  <div class="params-list">
  <div class="param">
- <div class="param-row"><label>短期均线周期</label><label><span id="v-short">5</span> 日</label></div>
- <input type="range" id="p-short" min="2" max="60" value="5">
+ <div class="param-row"><label>入场通道周期</label><label><span id="v-entry">20</span> 日</label></div>
+ <input type="range" id="p-entry" min="5" max="55" value="20">
  </div>
  <div class="param">
- <div class="param-row"><label>长期均线周期</label><label><span id="v-long">20</span> 日</label></div>
- <input type="range" id="p-long" min="5" max="120" value="20">
+ <div class="param-row"><label>出场通道周期</label><label><span id="v-exit">10</span> 日</label></div>
+ <input type="range" id="p-exit" min="3" max="30" value="10">
+ </div>
+ <div class="param">
+ <div class="param-row"><label>ATR 周期</label><label><span id="v-atr">20</span> 日</label></div>
+ <input type="range" id="p-atr" min="5" max="40" value="20">
+ </div>
+ <div class="param">
+ <div class="param-row"><label>止损 ATR 倍数</label><label><span id="v-stop">2.0</span> 倍</label></div>
+ <input type="range" id="p-stop" min="0.5" max="5" step="0.5" value="2">
+ </div>
+ <div class="param">
+ <div class="param-row"><label>单笔风险比例</label><label><span id="v-risk">1.0</span> %</label></div>
+ <input type="range" id="p-risk" min="0.5" max="5" step="0.1" value="1">
  </div>
  <div class="param">
  <div class="param-row"><label>初始资金</label><label>元</label></div>
@@ -233,8 +241,13 @@ body {
  </div>
 
  <div class="chart-box">
- <div class="chart-title">价格走势 + 均线 + 买卖信号</div>
+ <div class="chart-title">价格走势 + 唐奇安通道 + 买卖信号</div>
  <div id="c-price" class="chart tall"></div>
+ </div>
+
+ <div class="chart-box">
+ <div class="chart-title">ATR 波动率与持仓</div>
+ <div id="c-atr" class="chart"></div>
  </div>
 
  <div class="chart-box">
@@ -246,7 +259,7 @@ body {
  <div class="chart-title">交易明细</div>
  <div class="table-wrap">
  <table class="trade-table" id="tradeTable">
- <thead><tr><th>#</th><th>方向</th><th>日期</th><th>价格</th><th>数量</th><th>金额</th><th>手续费</th></tr></thead>
+ <thead><tr><th>#</th><th>方向</th><th>日期</th><th>价格</th><th>数量</th><th>金额</th><th>手续费</th><th>原因</th></tr></thead>
  <tbody></tbody>
  </table>
  </div>
@@ -254,7 +267,7 @@ body {
  </main>
  </div>
 
- <div class="footer">© 2026 均线策略回测 | 策略：双均线交叉 | 数据来源：AKShare | 基于 ECharts</div>
+ <div class="footer">© 2026 股票交易看板 | 数据来源：AKShare</div>
 </div>
 
 <script src="../data.js"></script>
@@ -265,27 +278,82 @@ const charts = {};
 
 // ---------- 工具 ----------
 function val(id) { return parseFloat(document.getElementById(id).value); }
-function ma(arr, n) {
- const r = new Array(arr.length).fill(null);
- let sum = 0;
- for (let i = 0; i < arr.length; i++) {
- sum += arr[i];
- if (i >= n) sum -= arr[i - n];
- if (i >= n - 1) r[i] = sum / n;
- }
- return r;
+
+// ---------- 指标计算 ----------
+// True Range
+function trueRange(high, low, prevClose) {
+ if (prevClose === null) return high - low;
+ return Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose));
 }
 
-// ---------- 回测引擎 ----------
-function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
- const n = close.length;
- const shortMA = ma(close, pShort);
- const longMA = ma(close, pLong);
+// ATR (Wilder smoothing)
+function atrCalc(highs, lows, closes, n) {
+ const len = closes.length;
+ const tr = new Array(len).fill(null);
+ const atr = new Array(len).fill(null);
+ for (let i = 0; i < len; i++) {
+ tr[i] = trueRange(highs[i], lows[i], i > 0 ? closes[i - 1] : null);
+ }
+ // First ATR = simple average of first n TRs
+ if (len >= n) {
+ let sum = 0;
+ for (let i = 0; i < n; i++) sum += tr[i];
+ atr[n - 1] = sum / n;
+ for (let i = n; i < len; i++) {
+ atr[i] = (atr[i - 1] * (n - 1) + tr[i]) / n;
+ }
+ }
+ return atr;
+}
+
+// Donchian Channel
+function donchian(highs, lows, n) {
+ const len = highs.length;
+ const upper = new Array(len).fill(null);
+ const lower = new Array(len).fill(null);
+ for (let i = n; i < len; i++) {
+ let maxH = -Infinity, minL = Infinity;
+ for (let j = i - n; j < i; j++) {
+ maxH = Math.max(maxH, highs[j]);
+ minL = Math.min(minL, lows[j]);
+ }
+ upper[i] = maxH;
+ lower[i] = minL;
+ }
+ return { upper, lower };
+}
+
+// Donchian exit channel (shorter period)
+function donchianLow(lows, n) {
+ const len = lows.length;
+ const lower = new Array(len).fill(null);
+ for (let i = n; i < len; i++) {
+ let minL = Infinity;
+ for (let j = i - n; j < i; j++) {
+ minL = Math.min(minL, lows[j]);
+ }
+ lower[i] = minL;
+ }
+ return lower;
+}
+
+// ---------- 海龟回测引擎 ----------
+function turtleBacktest(ohlc, dates, pEntry, pExit, pAtr, pStopMult, pRiskPct, capital, feeRate, slipRate) {
+ const n = ohlc.length;
+ const highs = ohlc.map(d => d[3]);
+ const lows = ohlc.map(d => d[2]);
+ const closes = ohlc.map(d => d[1]);
+
+ const atrArr = atrCalc(highs, lows, closes, pAtr);
+ const dc = donchian(highs, lows, pEntry);
+ const exitLow = donchianLow(lows, pExit);
 
  let cash = capital;
  let shares = 0;
  let position = 0;
  let entryPrice = 0;
+ let stopPrice = 0;
+ let unitATR = 0;
 
  const equity = new Array(n).fill(0);
  const benchmark = new Array(n).fill(0);
@@ -300,42 +368,80 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
  let prevEquity = capital;
 
  for (let i = 0; i < n; i++) {
- const price = close[i];
- benchmark[i] = (capital / close[0]) * price;
+ const price = closes[i];
+ const high = highs[i];
+ const low = lows[i];
+ benchmark[i] = (capital / closes[0]) * price;
 
- if (shortMA[i] !== null && longMA[i] !== null && i > 0 && shortMA[i - 1] !== null && longMA[i - 1] !== null) {
- const goldenCross = shortMA[i - 1] <= longMA[i - 1] && shortMA[i] > longMA[i];
- const deathCross = shortMA[i - 1] >= longMA[i - 1] && shortMA[i] < longMA[i];
+ // ----- 入场：突破唐奇安上轨 -----
+ if (position === 0 && dc.upper[i] !== null && i > 0 && dc.upper[i - 1] !== null && high > dc.upper[i - 1] && atrArr[i] !== null && atrArr[i] > 0) {
+ const execPrice = dc.upper[i - 1] * (1 + slipRate / 100);
+ const currentATR = atrArr[i];
+ // 仓位 = (资金 * 风险%) / (止损ATR倍数 * ATR)
+ const riskAmount = (capital * pRiskPct / 100);
+ const stopDistance = pStopMult * currentATR;
+ let unitSize = Math.floor(riskAmount / stopDistance / 100) * 100;
+ // 但不能超过可用资金
+ const maxByCash = Math.floor(cash / execPrice / 100) * 100;
+ unitSize = Math.min(unitSize, maxByCash);
 
- if (goldenCross && position === 0) {
- const execPrice = price * (1 + slipRate / 100);
- const fee = cash * feeRate / 100;
- const investable = cash - fee;
- shares = Math.floor(investable / execPrice / 100) * 100;
- if (shares > 0) {
- const cost = shares * execPrice;
+ if (unitSize > 0) {
+ const cost = unitSize * execPrice;
  const buyFee = cost * feeRate / 100;
  cash -= (cost + buyFee);
+ shares = unitSize;
  position = 1;
  entryPrice = execPrice;
- buySignals.push({ idx: i, date: dates[i], price: price });
- trades.push({ type: '买入', date: dates[i], price: execPrice.toFixed(2), shares: shares, amount: cost.toFixed(2), fee: buyFee.toFixed(2) });
+ unitATR = currentATR;
+ stopPrice = execPrice - stopDistance;
+
+ buySignals.push({ idx: i, date: dates[i], price: execPrice });
+ trades.push({
+ type: '买入', date: dates[i], price: execPrice.toFixed(2),
+ shares: shares, amount: cost.toFixed(2), fee: buyFee.toFixed(2),
+ reason: '突破' + pEntry + '日高点'
+ });
  }
  }
 
- if (deathCross && position === 1) {
- const execPrice = price * (1 - slipRate / 100);
+ // ----- 出场1：跌破止损线 -----
+ if (position === 1 && low < stopPrice) {
+ const execPrice = stopPrice * (1 - slipRate / 100);
  const revenue = shares * execPrice;
  const sellFee = revenue * feeRate / 100;
  cash += (revenue - sellFee);
  const cost = shares * entryPrice;
  if (revenue - sellFee > cost) wins++;
  totalTrades++;
- sellSignals.push({ idx: i, date: dates[i], price: price });
- trades.push({ type: '卖出', date: dates[i], price: execPrice.toFixed(2), shares: shares, amount: revenue.toFixed(2), fee: sellFee.toFixed(2) });
+
+ sellSignals.push({ idx: i, date: dates[i], price: execPrice });
+ trades.push({
+ type: '止损', date: dates[i], price: execPrice.toFixed(2),
+ shares: shares, amount: revenue.toFixed(2), fee: sellFee.toFixed(2),
+ reason: 'ATR止损(' + pStopMult + '×ATR)'
+ });
  shares = 0;
  position = 0;
  }
+
+ // ----- 出场2：跌破出场通道下轨 -----
+ if (position === 1 && exitLow[i] !== null && i > 0 && exitLow[i - 1] !== null && low < exitLow[i - 1]) {
+ const execPrice = exitLow[i - 1] * (1 - slipRate / 100);
+ const revenue = shares * execPrice;
+ const sellFee = revenue * feeRate / 100;
+ cash += (revenue - sellFee);
+ const cost = shares * entryPrice;
+ if (revenue - sellFee > cost) wins++;
+ totalTrades++;
+
+ sellSignals.push({ idx: i, date: dates[i], price: execPrice });
+ trades.push({
+ type: '卖出', date: dates[i], price: execPrice.toFixed(2),
+ shares: shares, amount: revenue.toFixed(2), fee: sellFee.toFixed(2),
+ reason: '跌破' + pExit + '日低点'
+ });
+ shares = 0;
+ position = 0;
  }
 
  equity[i] = cash + shares * price;
@@ -345,8 +451,9 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
  prevEquity = equity[i];
  }
 
+ // 末尾平仓
  if (position === 1 && n > 0) {
- const execPrice = close[n - 1];
+ const execPrice = closes[n - 1];
  const revenue = shares * execPrice;
  const sellFee = revenue * feeRate / 100;
  cash += (revenue - sellFee);
@@ -357,12 +464,12 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
  shares = 0;
  }
 
- const finalEquity = cash + (position === 1 ? shares * close[n - 1] : 0);
+ const finalEquity = cash;
  const totalReturn = (finalEquity - capital) / capital * 100;
- const benchReturn = (close[n - 1] - close[0]) / close[0] * 100;
+ const benchReturn = (closes[n - 1] - closes[0]) / closes[0] * 100;
  const days = n;
  const annualReturn = days > 0 ? (Math.pow(finalEquity / capital, 252 / days) - 1) * 100 : 0;
- const benchAnnual = days > 0 ? (Math.pow(close[n - 1] / close[0], 252 / days) - 1) * 100 : 0;
+ const benchAnnual = days > 0 ? (Math.pow(closes[n - 1] / closes[0], 252 / days) - 1) * 100 : 0;
  const maxDrawdown = Math.min(...drawdown);
 
  const meanRet = dailyReturns.length > 0 ? dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length : 0;
@@ -370,7 +477,7 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
  const sharpe = stdRet > 0 ? meanRet / stdRet * Math.sqrt(252) : 0;
 
  const benchReturns = [];
- for (let i = 1; i < n; i++) benchReturns.push((close[i] - close[i - 1]) / close[i - 1]);
+ for (let i = 1; i < n; i++) benchReturns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
  const benchMean = benchReturns.length > 0 ? benchReturns.reduce((s, v) => s + v, 0) / benchReturns.length : 0;
  const cov = dailyReturns.length > 0 ? dailyReturns.reduce((a, r, i) => a + (r - meanRet) * (benchReturns[i] - benchMean), 0) / dailyReturns.length : 0;
  const varB = benchReturns.length > 0 ? benchReturns.reduce((a, v) => a + (v - benchMean) ** 2, 0) / benchReturns.length : 0;
@@ -378,22 +485,25 @@ function backtest(close, dates, pShort, pLong, capital, feeRate, slipRate) {
  const alpha = annualReturn - beta * benchAnnual;
  const winRate = totalTrades > 0 ? wins / totalTrades * 100 : 0;
 
- return { equity, benchmark, drawdown, buySignals, sellSignals, trades, totalReturn, benchReturn, alpha, beta, maxDrawdown, sharpe, winRate, totalTrades, annualReturn, finalEquity, shortMA, longMA };
+ return { equity, benchmark, drawdown, buySignals, sellSignals, trades, totalReturn, benchReturn, alpha, beta, maxDrawdown, sharpe, winRate, totalTrades, annualReturn, finalEquity, dc, atrArr, exitLow };
 }
 
 // ---------- 渲染 ----------
 function render() {
  const meta = DATA[curStock];
  const s = meta[curAdj];
- const dates = s.dates, close = s.close;
+ const dates = s.dates, ohlc = s.ohlc;
 
- const pShort = val('p-short');
- const pLong = val('p-long');
+ const pEntry = val('p-entry');
+ const pExit = val('p-exit');
+ const pAtr = val('p-atr');
+ const pStop = val('p-stop');
+ const pRisk = val('p-risk');
  const capital = val('p-capital');
  const feeRate = val('p-fee');
  const slipRate = val('p-slip');
 
- const bt = backtest(close, dates, pShort, pLong, capital, feeRate, slipRate);
+ const bt = turtleBacktest(ohlc, dates, pEntry, pExit, pAtr, pStop, pRisk, capital, feeRate, slipRate);
 
  // 统计指标
  const fmt = v => v >= 0 ? '+' + v.toFixed(2) + '%' : v.toFixed(2) + '%';
@@ -427,21 +537,36 @@ function render() {
  ]
  }, true);
 
- // 价格 + 均线 + 买卖信号
+ // 价格 + 唐奇安通道 + 买卖信号
  const buyMarks = bt.buySignals.map(s => ({ coord: [s.date, s.price], value: '买', itemStyle: { color: '#b91c1c' } }));
  const sellMarks = bt.sellSignals.map(s => ({ coord: [s.date, s.price], value: '卖', itemStyle: { color: '#15803d' } }));
+ const closes = ohlc.map(d => d[1]);
  charts.price.setOption({
  tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
- legend: { data: ['收盘价','MA'+pShort,'MA'+pLong], top: 0, textStyle: { fontSize: 12 } },
- grid: { left: 60, right: 60, bottom: 56, top: 30 },
+ legend: { data: ['收盘价','入场上轨('+pEntry+'日)','入场下轨('+pEntry+'日)','出场下轨('+pExit+'日)'], top: 0, textStyle: { fontSize: 11 } },
+ grid: { left: 60, right: 60, bottom: 56, top: 40 },
  xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
  yAxis: { scale: true, axisLabel: { formatter: v => Number(v).toFixed(2) } },
  dataZoom: [{ type: 'inside', start: 0, end: 100 }],
  series: [
- { name: '收盘价', type: 'line', data: close, showSymbol: false, symbol: 'none', lineStyle: { color: '#1f2937', width: 1.3 }, itemStyle: { color: '#1f2937' },
+ { name: '收盘价', type: 'line', data: closes, showSymbol: false, symbol: 'none', lineStyle: { color: '#1f2937', width: 1.4 }, itemStyle: { color: '#1f2937' },
  markPoint: { data: [...buyMarks, ...sellMarks], symbolSize: 28, label: { fontSize: 10, color: '#fff', fontWeight: 'bold' } } },
- { name: 'MA' + pShort, type: 'line', data: bt.shortMA, showSymbol: false, symbol: 'none', lineStyle: { color: '#b91c1c', width: 1.8 }, itemStyle: { color: '#b91c1c' } },
- { name: 'MA' + pLong, type: 'line', data: bt.longMA, showSymbol: false, symbol: 'none', lineStyle: { color: '#15803d', width: 1.8 }, itemStyle: { color: '#15803d' } }
+ { name: '入场上轨(' + pEntry + '日)', type: 'line', data: bt.dc.upper, showSymbol: false, symbol: 'none', lineStyle: { color: '#e74c3c', width: 1.5, type: 'dashed' }, itemStyle: { color: '#e74c3c' } },
+ { name: '入场下轨(' + pEntry + '日)', type: 'line', data: bt.dc.lower, showSymbol: false, symbol: 'none', lineStyle: { color: '#3498db', width: 1, type: 'dashed' }, itemStyle: { color: '#3498db' } },
+ { name: '出场下轨(' + pExit + '日)', type: 'line', data: bt.exitLow, showSymbol: false, symbol: 'none', lineStyle: { color: '#2ecc71', width: 1.5, type: 'dotted' }, itemStyle: { color: '#2ecc71' } }
+ ]
+ }, true);
+
+ // ATR 波动率
+ charts.atr.setOption({
+ tooltip: { trigger: 'axis', formatter: params => `${params[0].axisValue}<br/>ATR: ${params[0].value !== null ? params[0].value.toFixed(3) : 'N/A'}`, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
+ legend: { data: ['ATR('+pAtr+'日)'], top: 0, textStyle: { fontSize: 12 } },
+ grid: { left: 60, right: 40, bottom: 56, top: 30 },
+ xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
+ yAxis: { scale: true, axisLabel: { formatter: v => v.toFixed(2) } },
+ dataZoom: [{ type: 'inside', start: 0, end: 100 }],
+ series: [
+ { name: 'ATR(' + pAtr + '日)', type: 'line', data: bt.atrArr, showSymbol: false, symbol: 'none', lineStyle: { color: '#9b59b6', width: 1.5 }, itemStyle: { color: '#9b59b6' }, areaStyle: { color: 'rgba(155,89,182,0.1)' } }
  ]
  }, true);
 
@@ -459,7 +584,7 @@ function render() {
  // 交易明细表
  const tbody = document.querySelector('#tradeTable tbody');
  tbody.innerHTML = bt.trades.map((t, i) =>
- `<tr><td>${i + 1}</td><td class="${t.type === '买入' ? 'buy-tag' : 'sell-tag'}">${t.type}</td><td>${t.date}</td><td>${t.price}</td><td>${t.shares}</td><td>${t.amount}</td><td>${t.fee}</td></tr>`
+ `<tr><td>${i + 1}</td><td class="${t.type === '买入' ? 'buy-tag' : t.type === '止损' ? 'stop-tag' : 'sell-tag'}">${t.type}</td><td>${t.date}</td><td>${t.price}</td><td>${t.shares}</td><td>${t.amount}</td><td>${t.fee}</td><td>${t.reason}</td></tr>`
  ).join('');
 }
 
@@ -475,15 +600,20 @@ function init() {
 
  charts.equity = echarts.init(document.getElementById('c-equity'));
  charts.price = echarts.init(document.getElementById('c-price'));
+ charts.atr = echarts.init(document.getElementById('c-atr'));
  charts.drawdown = echarts.init(document.getElementById('c-drawdown'));
 
  sel.addEventListener('change', () => { curStock = sel.value; render(); });
  document.getElementById('adjToggle').addEventListener('change', e => { curAdj = e.target.checked ? 'qfq' : 'nofq'; render(); });
 
- const sliders = [['p-short', 'v-short'], ['p-long', 'v-long'], ['p-fee', 'v-fee'], ['p-slip', 'v-slip']];
+ const sliders = [['p-entry', 'v-entry'], ['p-exit', 'v-exit'], ['p-atr', 'v-atr'], ['p-stop', 'v-stop'], ['p-risk', 'v-risk'], ['p-fee', 'v-fee'], ['p-slip', 'v-slip']];
  sliders.forEach(([pid, vid]) => {
  const el = document.getElementById(pid);
- el.addEventListener('input', () => { document.getElementById(vid).textContent = el.value; render(); });
+ el.addEventListener('input', () => {
+ const v = parseFloat(el.value);
+ document.getElementById(vid).textContent = (pid === 'p-stop' || pid === 'p-risk') ? v.toFixed(1) : el.value;
+ render();
+ });
  });
  document.getElementById('p-capital').addEventListener('input', render);
 
