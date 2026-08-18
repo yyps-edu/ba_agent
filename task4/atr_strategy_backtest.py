@@ -1,3 +1,4 @@
+import os, json
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -9,10 +10,37 @@ warnings.filterwarnings('ignore')
 plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
-def load_data(file_path):
-    df = pd.read_csv(file_path)
-    df['trade_date'] = pd.to_datetime(df['trade_date'])
-    df = df.sort_values('trade_date').reset_index(drop=True)
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+
+STOCKS = [
+    {"name": "恒瑞医药", "symbol": "600276"},
+    {"name": "平安银行", "symbol": "000001"},
+]
+
+def load_data(stock_name):
+    """从根目录 data.js 读取不复权数据（fetch_data.py 生成）。"""
+    path = os.path.join(ROOT, "data.js")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"找不到 {path}，请先运行 python fetch_data.py 获取数据")
+    raw = open(path, "r", encoding="utf-8").read()
+    if raw.startswith("const DATA"):
+        raw = raw.split("=", 1)[1].rstrip().rstrip(";")
+    data_obj = json.loads(raw)
+    if stock_name not in data_obj:
+        raise KeyError(f"data.js 中没有找到股票: {stock_name}")
+    blk = data_obj[stock_name]["nofq"]
+    df = pd.DataFrame({
+        "trade_date": pd.to_datetime(blk["dates"]),
+        "open":  [x[0] for x in blk["ohlc"]],
+        "close": [x[1] for x in blk["ohlc"]],
+        "low":   [x[2] for x in blk["ohlc"]],
+        "high":  [x[3] for x in blk["ohlc"]],
+        "vol":   blk["vol"],
+    })
+    df["daily_return"] = df["close"].pct_change()
+    df = df.sort_values("trade_date").reset_index(drop=True)
+    print(f"  ✔ 读取 data.js / {stock_name} 不复权 {len(df)} 行")
     return df
 
 def calculate_price_channel(df, period=20):
@@ -212,12 +240,15 @@ def plot_metrics(metrics, stock_name):
     plt.close()
 
 def main():
-    data_path = '../task2/平安银行.csv'
-    stock_name = '平安银行'
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--stock", default="平安银行", choices=[s["name"] for s in STOCKS])
+    args = ap.parse_args()
+    stock_name = args.stock
     period = 20
     
-    print(f"加载{stock_name}数据...")
-    df = load_data(data_path)
+    print(f"加载{stock_name}数据（从根目录 data.js）...")
+    df = load_data(stock_name)
     print(f"数据范围：{df['trade_date'].min()} ~ {df['trade_date'].max()}")
     print(f"数据条数：{len(df)}")
     
