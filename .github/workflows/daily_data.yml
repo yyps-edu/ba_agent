@@ -1,0 +1,60 @@
+name: 每日更新股票数据 (data.js)
+
+# 北京时间凌晨 01:00（UTC+8 → UTC = 前一日 17:00）
+on:
+  schedule:
+    - cron: '0 17 * * *'
+  workflow_dispatch:      # 支持手动触发（Actions 页面中可点击 Run workflow）
+
+permissions:
+  contents: write         # 需要写入权限提交 data.js
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ① 检出仓库代码
+        uses: actions/checkout@v4
+
+      - name: ② 设置 Python 3.12 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: ③ 缓存 pip 依赖
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: ④ 安装依赖（pandas / openpyxl / numpy / akshare）
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy openpyxl akshare requests
+
+      - name: ⑤ 拉取股票数据并生成 data.js
+        run: |
+          echo "===== 网络预检测 ====="
+          python -c "import urllib.request;print(urllib.request.getproxies())"
+          echo "===== 执行 fetch_data.py ====="
+          python fetch_data.py
+          echo "===== 生成结果 ====="
+          ls -lh data.js || echo "⚠ data.js 未生成"
+          wc -c data.js || true
+        timeout-minutes: 30
+
+      - name: ⑥ 提交并推送 data.js 变更
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.js
+          # 如果有变化才提交
+          if git diff --cached --quiet; then
+            echo "ℹ data.js 无变化，跳过提交"
+          else
+            TS=$(date -u -d '+8 hours' '+%Y-%m-%d %H:%M' 2>/dev/null || date -u '+%Y-%m-%d %H:%M')
+            git commit -m "chore(daily): 自动更新 data.js (北京时间 ${TS})"
+            git push
+          fi

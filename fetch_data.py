@@ -1,21 +1,19 @@
 """
-fetch_data.py — 股票数据获取 + 保存 Excel + 生成 data.js
+fetch_data.py — 股票数据获取 + 生成 data.js
 
 功能：
   1) 通过 AKShare 获取股票不复权 + 前复权数据（东财→腾讯 双源容灾）
-  2) 保存每只股票的 Excel（双 sheet：不复权/前复权）到 task2/ 目录
-  3) 生成根目录 data.js（嵌套 nofq/qfq 结构，供所有看板使用）
+  2) 生成根目录 data.js（嵌套 nofq/qfq 结构，供所有看板使用）
+  * 不再生成 Excel（如需指标计算/绘图，看板已用 data.js 运行时计算）
 
 命令行：
-  python fetch_data.py              # 拉取所有股票数据并保存
-  python fetch_data.py --fetch-only  # 同上（保持兼容）
+  python fetch_data.py              # 拉取所有股票数据 → 生成 data.js
 """
 import os, sys, time, socket, warnings, json
 warnings.filterwarnings("ignore")
 
 # ========== 全局路径与配置 ==========
 HERE = os.path.dirname(os.path.abspath(__file__))
-TASK2_DIR = os.path.join(HERE, "task2")
 
 STOCKS = [
     {"name": "恒瑞医药", "symbol": "600276"},
@@ -75,12 +73,6 @@ def _tcp_test(host, port=443, timeout=10):
 
 # ========== 1. 数据获取：AKShare（东财 → 腾讯 双源） ==========
 def _normalize_ak_df(df, start=START, end=END):
-    """
-    统一列名 + 计算 daily_return + 过滤日期。
-    兼容两种源：
-      - 东方财富（中文列）：日期/开盘/收盘/最高/最低/成交量/成交额/涨跌幅/涨跌额
-      - 腾讯（英文列）：date/open/close/high/low/amount（缺vol/change/pct_chg，需补算）
-    """
     tx_cols = {"date", "open", "close", "high", "low", "amount"}
     if tx_cols.issubset(set(df.columns)) and "日期" not in df.columns:
         if "vol" not in df.columns:
@@ -128,11 +120,6 @@ def _tx_symbol(symbol):
     return "sz" + symbol
 
 def fetch_stock(symbol, adjust):
-    """
-    获取单只股票不复权或前复权数据。
-    adjust: ''（不复权）或 'qfq'（前复权）
-    优先用东方财富 stock_zh_a_hist，失败快速切换腾讯 stock_zh_a_hist_tx。
-    """
     import akshare as ak
     last_err = None
     em_max_attempts = 1
@@ -176,7 +163,6 @@ def fetch_stock(symbol, adjust):
     raise RuntimeError(f"ak {symbol} adjust={adjust!r} 全部源失败, 最后错误: {last_err}")
 
 def fetch_all():
-    """拉取所有股票的不复权 + 前复权。"""
     print("\n[网络预检测] eastmoney / baidu / qq...")
     for host in ["push2his.eastmoney.com","proxy.finance.qq.com","www.baidu.com"]:
         print(f"  {host}: {'✅' if _tcp_test(host) else '❌'}")
@@ -196,23 +182,7 @@ def fetch_all():
         result[name] = {"code": code, "nofq": nofq, "qfq": qfq}
     return result
 
-# ========== 2. 保存：Excel 双 sheet + data.js ==========
-def save_excels(all_data):
-    cols_std = ["ts_code","trade_date","open","high","low","close","pre_close","change","pct_chg","vol","amount","daily_return"]
-    for st in STOCKS:
-        name = st["name"]
-        nofq = all_data[name]["nofq"].copy()
-        qfq  = all_data[name]["qfq"].copy()
-        nofq["ts_code"] = all_data[name]["code"]
-        qfq["ts_code"]  = all_data[name]["code"]
-        nofq["trade_date"] = nofq["trade_date"].dt.strftime("%Y-%m-%d")
-        qfq["trade_date"]  = qfq["trade_date"].dt.strftime("%Y-%m-%d")
-        path = os.path.join(TASK2_DIR, f"{name}.xlsx")
-        with pd.ExcelWriter(path, engine="openpyxl") as w:
-            nofq[cols_std].to_excel(w, sheet_name="不复权", index=False)
-            qfq[cols_std].to_excel(w,  sheet_name="前复权", index=False)
-        print(f"  ✔ {name}.xlsx  不复权 {len(nofq)} / 前复权 {len(qfq)} 行")
-
+# ========== 2. 生成 data.js ==========
 def build_datajs(all_data):
     data_obj = {}
     for st in STOCKS:
@@ -240,15 +210,12 @@ def build_datajs(all_data):
 # ========== 主函数 ==========
 def main():
     print("=" * 64)
-    print("fetch_data.py  (AKShare 双源不复权/前复权 + Excel + data.js)")
+    print("fetch_data.py  (AKShare 双源不复权/前复权 → data.js)")
     print(f"  日期范围: {START} ~ {END}")
     print(f"  股票池: {STOCKS}")
     print("=" * 64)
 
     all_data = fetch_all()
-
-    print("\n▶ 保存 Excel 双 sheet (task2/)...")
-    save_excels(all_data)
 
     print("\n▶ 生成根目录 data.js（供 HTML 看板使用）...")
     build_datajs(all_data)

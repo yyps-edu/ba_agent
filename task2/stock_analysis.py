@@ -2,7 +2,7 @@
 stock_analysis.py — 股票技术指标计算 + matplotlib 可视化
 
 功能：
-  1) 从 task2/ 下已保存的 Excel 读取不复权/前复权数据（由根目录 fetch_data.py 生成）
+  1) 从根目录 data.js（fetch_data.py 生成的 nofq/qfq 嵌套结构）读取不复权数据
   2) 计算技术指标：RSI / MACD / 布林带 / KDJ
   3) matplotlib 绘图（收盘价/收益率分布/RSI/MACD/布林带/K线/KDJ）
 
@@ -10,7 +10,7 @@ stock_analysis.py — 股票技术指标计算 + matplotlib 可视化
   python task2/stock_analysis.py                    # 默认对平安银行绘图
   python task2/stock_analysis.py --stock 恒瑞医药   # 指定股票
 """
-import os, sys, argparse, warnings
+import os, sys, argparse, json, warnings
 warnings.filterwarnings("ignore")
 
 import matplotlib
@@ -24,23 +24,40 @@ import pandas as pd
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
 
 STOCKS = [
     {"name": "恒瑞医药", "symbol": "600276"},
     {"name": "平安银行", "symbol": "000001"},
 ]
 
-# ========== 1. 从 Excel 读取数据 ==========
-def load_from_excel(stock_name):
-    """从 task2/{stock_name}.xlsx 读取不复权数据（由 fetch_data.py 生成）。"""
-    path = os.path.join(HERE, f"{stock_name}.xlsx")
+# ========== 1. 从根目录 data.js 读取不复权数据 ==========
+def load_from_datajs(stock_name):
+    path = os.path.join(ROOT, "data.js")
     if not os.path.exists(path):
         print(f"❌ 找不到 {path}，请先运行 python fetch_data.py 获取数据")
         sys.exit(1)
-    df = pd.read_excel(path, sheet_name="不复权")
-    df["trade_date"] = pd.to_datetime(df["trade_date"])
+    raw = open(path, "r", encoding="utf-8").read()
+    # data.js 格式: const DATA = {...};
+    if raw.startswith("const DATA"):
+        raw = raw.split("=", 1)[1].rstrip().rstrip(";")
+    data_obj = json.loads(raw)
+    if stock_name not in data_obj:
+        print(f"❌ data.js 中没有找到股票: {stock_name}")
+        sys.exit(1)
+    blk = data_obj[stock_name]["nofq"]
+    df = pd.DataFrame({
+        "trade_date": pd.to_datetime(blk["dates"]),
+        "open":  [x[0] for x in blk["ohlc"]],
+        "close": [x[1] for x in blk["ohlc"]],
+        "low":   [x[2] for x in blk["ohlc"]],
+        "high":  [x[3] for x in blk["ohlc"]],
+        "vol":   blk["vol"],
+    })
+    df["daily_return"] = df["close"].pct_change()
+    df["daily_return_pct"] = [p / 100.0 for p in blk["pct"]]   # data.js 已存为 *100 后的百分比
     df = df.sort_values("trade_date").reset_index(drop=True)
-    print(f"  ✔ 读取 {stock_name}.xlsx 不复权 {len(df)} 行")
+    print(f"  ✔ 读取 data.js {stock_name} 不复权 {len(df)} 行")
     return df
 
 # ========== 2. 指标计算 ==========
@@ -161,12 +178,12 @@ def main():
     args = ap.parse_args()
 
     print("=" * 64)
-    print("stock_analysis.py  指标计算 + 可视化（从 Excel 读取）")
+    print("stock_analysis.py  指标计算 + 可视化（从 data.js 读取）")
     print(f"  绘图股票: {args.stock}")
     print("=" * 64)
 
-    print(f"\n▶ 读取 {args.stock}.xlsx ...")
-    df = load_from_excel(args.stock)
+    print(f"\n▶ 读取 data.js / {args.stock} ...")
+    df = load_from_datajs(args.stock)
 
     print(f"\n▶ 对 {args.stock}（不复权）计算技术指标...")
     df_calc = calculate_indicators(df)
