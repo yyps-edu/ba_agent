@@ -1,15 +1,17 @@
 """
-fetch_data.py — 股票数据获取 + 生成 data.js
+fetch_data.py — 股票数据获取 + 生成 data.js + 生成 stock_data.xlsx
 
 功能：
   1) 通过 AKShare 获取股票不复权 + 前复权数据（东财→腾讯 双源容灾）
-  2) 生成根目录 data.js（嵌套 nofq/qfq 结构，供所有看板使用）
-  * 不再生成 Excel（如需指标计算/绘图，看板已用 data.js 运行时计算）
+     * 日期范围动态：END = 今天，START = 两年前的今天
+  2) 生成根目录 data.js（嵌套 nofq/qfq 结构，供 HTML 看板使用）
+  3) 生成根目录 stock_data.xlsx（单 Excel，每股票 2 个 sheet：{股票名}_不复权 / {股票名}_前复权）
+     供 task2/3/4 的 Python 分析脚本统一读取
 
 命令行：
-  python fetch_data.py              # 拉取所有股票数据 → 生成 data.js
+  python fetch_data.py              # 拉取所有股票数据 → data.js + stock_data.xlsx
 """
-import os, sys, time, socket, warnings, json
+import os, sys, time, socket, warnings, json, datetime
 warnings.filterwarnings("ignore")
 
 # ========== 全局路径与配置 ==========
@@ -19,8 +21,18 @@ STOCKS = [
     {"name": "恒瑞医药", "symbol": "600276"},
     {"name": "平安银行", "symbol": "000001"},
 ]
-START = "20240801"
-END   = "20260810"
+
+# ========== 动态日期：END = 今天，START = 两年前 ==========
+_today = datetime.date.today()
+END   = _today.strftime("%Y%m%d")
+try:
+    _two_yrs_ago = _today.replace(year=_today.year - 2)
+except ValueError:
+    # 2 月 29 日跨闰年回退到 28
+    _two_yrs_ago = _today.replace(year=_today.year - 2, day=28)
+START = _two_yrs_ago.strftime("%Y%m%d")
+
+EXCEL_NAME = "stock_data.xlsx"
 
 # ========== 第一层：彻底禁用代理 ==========
 PROXY_VARS = [
@@ -207,11 +219,29 @@ def build_datajs(all_data):
         f.write("const DATA = "); f.write(payload); f.write(";\n")
     print(f"  ✔ data.js  {os.path.getsize(js_path)/1024:.1f} KB  嵌套 nofq/qfq 结构")
 
+# ========== 3. 生成单 Excel（每股票 2 sheet） ==========
+def save_excel(all_data):
+    """根目录 stock_data.xlsx：{股票名}_不复权 / {股票名}_前复权"""
+    COLS = ["ts_code","trade_date","open","high","low","close","pre_close",
+            "change","pct_chg","vol","amount","daily_return"]
+    xlsx = os.path.join(HERE, EXCEL_NAME)
+    with pd.ExcelWriter(xlsx, engine="openpyxl") as w:
+        for st in STOCKS:
+            name = st["name"]
+            code = all_data[name]["code"]
+            for suffix, key in [("不复权", "nofq"), ("前复权", "qfq")]:
+                df = all_data[name][key].copy()
+                df.insert(0, "ts_code", code)
+                df["trade_date"] = df["trade_date"].dt.strftime("%Y-%m-%d")
+                df[COLS].to_excel(w, sheet_name=f"{name}_{suffix}", index=False)
+            print(f"  ✔ {name}: 不复权 {len(all_data[name]['nofq'])} / 前复权 {len(all_data[name]['qfq'])} 行 → sheet")
+    print(f"  ✔ {EXCEL_NAME}  {os.path.getsize(xlsx)/1024:.1f} KB  (共 {2*len(STOCKS)} 个 sheet)")
+
 # ========== 主函数 ==========
 def main():
     print("=" * 64)
-    print("fetch_data.py  (AKShare 双源不复权/前复权 → data.js)")
-    print(f"  日期范围: {START} ~ {END}")
+    print("fetch_data.py  (AKShare 双源不复权/前复权 → data.js + stock_data.xlsx)")
+    print(f"  日期范围: {START} ~ {END}  (两年前今天 → 今天)")
     print(f"  股票池: {STOCKS}")
     print("=" * 64)
 
@@ -219,6 +249,9 @@ def main():
 
     print("\n▶ 生成根目录 data.js（供 HTML 看板使用）...")
     build_datajs(all_data)
+
+    print(f"\n▶ 生成根目录 {EXCEL_NAME}（供 task2/3/4 Python 分析脚本读取）...")
+    save_excel(all_data)
 
     print("\n✅ 全部完成！")
 

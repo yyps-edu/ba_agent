@@ -1,4 +1,4 @@
-import os, json
+import os, sys
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -12,35 +12,26 @@ plt.rcParams['axes.unicode_minus'] = False
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+EXCEL_NAME = "stock_data.xlsx"
 
 STOCKS = [
     {"name": "恒瑞医药", "symbol": "600276"},
     {"name": "平安银行", "symbol": "000001"},
 ]
 
-def load_data(stock_name):
-    """从根目录 data.js 读取不复权数据（fetch_data.py 生成）。"""
-    path = os.path.join(ROOT, "data.js")
+def load_data(stock_name, adjust="不复权"):
+    """从根目录 stock_data.xlsx 读取（fetch_data.py 生成）。"""
+    path = os.path.join(ROOT, EXCEL_NAME)
+    sheet = f"{stock_name}_{adjust}"
     if not os.path.exists(path):
-        raise FileNotFoundError(f"找不到 {path}，请先运行 python fetch_data.py 获取数据")
-    raw = open(path, "r", encoding="utf-8").read()
-    if raw.startswith("const DATA"):
-        raw = raw.split("=", 1)[1].rstrip().rstrip(";")
-    data_obj = json.loads(raw)
-    if stock_name not in data_obj:
-        raise KeyError(f"data.js 中没有找到股票: {stock_name}")
-    blk = data_obj[stock_name]["nofq"]
-    df = pd.DataFrame({
-        "trade_date": pd.to_datetime(blk["dates"]),
-        "open":  [x[0] for x in blk["ohlc"]],
-        "close": [x[1] for x in blk["ohlc"]],
-        "low":   [x[2] for x in blk["ohlc"]],
-        "high":  [x[3] for x in blk["ohlc"]],
-        "vol":   blk["vol"],
-    })
-    df["daily_return"] = df["close"].pct_change()
-    df = df.sort_values("trade_date").reset_index(drop=True)
-    print(f"  ✔ 读取 data.js / {stock_name} 不复权 {len(df)} 行")
+        print(f"❌ 找不到 {path}，请先运行 python fetch_data.py 获取数据")
+        sys.exit(1)
+    df = pd.read_excel(path, sheet_name=sheet)
+    df['trade_date'] = pd.to_datetime(df['trade_date'])
+    df = df.sort_values('trade_date').reset_index(drop=True)
+    if "daily_return" not in df.columns or df["daily_return"].isnull().all():
+        df["daily_return"] = df["close"].pct_change()
+    print(f"  ✔ 读取 {EXCEL_NAME} / sheet={sheet}  {len(df)} 行")
     return df
 
 def calculate_moving_averages(df, short_period=5, long_period=15):
@@ -260,7 +251,7 @@ def main():
     args = ap.parse_args()
     stock_name = args.stock
     
-    print(f"加载{stock_name}数据（从根目录 data.js）...")
+    print(f"加载{stock_name}数据（从根目录 stock_data.xlsx）...")
     df = load_data(stock_name)
     print(f"数据范围：{df['trade_date'].min()} ~ {df['trade_date'].max()}")
     print(f"数据条数：{len(df)}")
