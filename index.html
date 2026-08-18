@@ -223,7 +223,7 @@ function kdjCalc(ohlc, n) {
 // ---------- 工具 ----------
 function val(id) { return parseFloat(document.getElementById(id).value); }
 function catAxis(dates) { return { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(5) } }; }
-function tip() { return { trigger: 'axis', axisPointer: { type: 'cross' } }; }
+function tip() { return { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' }; }
 const priceFmt = { axisLabel: { formatter: v => Number(v).toFixed(2) } };
 const g = { left: 60, right: 80, bottom: 56, top: 30 };
 
@@ -253,7 +253,7 @@ function render() {
 
   // K线 + 收盘价 + 成交量
   charts.kline.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
     legend: { data: ['日K', '收盘价', '成交量'], top: 0, textStyle: { fontSize: 12 } },
     axisPointer: { link: [{ xAxisIndex: 'all' }] },
     dataZoom: [{ type: 'inside', xAxisIndex: [0, 1], start: 0, end: 100, zoomOnMouseWheel: true, moveOnMouseMove: true }],
@@ -271,7 +271,7 @@ function render() {
     ],
     series: [
       { name: '日K', type: 'candlestick', xAxisIndex: 0, yAxisIndex: 0, data: ohlc, itemStyle: { color: '#ec0000', color0: '#00da3c', borderColor: '#8A0000', borderColor0: '#008F28' } },
-      { name: '收盘价', type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: close, smooth: true, showSymbol: false, lineStyle: { color: '#667eea', width: 1.5 } },
+      { name: '收盘价', type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: close, smooth: true, showSymbol: false, symbol: 'none', lineStyle: { color: '#667eea', width: 1.5 } },
       { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vol, itemStyle: { color: (p) => ohlc[p.dataIndex][1] >= ohlc[p.dataIndex][0] ? '#ec0000' : '#00da3c' } }
     ]
   }, true);
@@ -279,13 +279,13 @@ function render() {
   // 均线
   charts.ma.setOption({
     tooltip: tip(),
-    legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
+    legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
-      { name: 'MA' + pMa, type: 'line', data: ma(close, pMa), smooth: true, showSymbol: false, lineStyle: { width: 2 } },
-      { name: 'MA' + pMa2, type: 'line', data: ma(close, pMa2), smooth: true, showSymbol: false, lineStyle: { width: 2 } }
+      { name: 'MA' + pMa, type: 'line', data: ma(close, pMa), smooth: true, showSymbol: false, symbol: 'none', lineStyle: { width: 2 } },
+      { name: 'MA' + pMa2, type: 'line', data: ma(close, pMa2), smooth: true, showSymbol: false, symbol: 'none', lineStyle: { width: 2 } }
     ]
   }, true);
 
@@ -300,7 +300,7 @@ function render() {
   const avgGap = closeN.reduce((a, _, i) => a + Math.abs(closeQ[i] - closeN[i]), 0) / closeN.length;
   const latestPct = ((lastQ - lastN) / (lastN || 1) * 100).toFixed(3);
   charts.close.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;',
       formatter: params => {
         const rows = params.map(p => `${p.marker}${p.seriesName}: ${Number(p.value).toFixed(2)}`).join('<br/>');
         if (params.length >= 2) {
@@ -311,7 +311,7 @@ function render() {
         return `${params[0].axisValue}<br/>${rows}`;
       }
     },
-    legend: { data: ['不复权收盘', '前复权收盘'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
+    legend: { data: ['不复权收盘', '前复权收盘'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: { type: 'category', data: shareDates, axisLabel: { formatter: v => v.slice(5) } },
     yAxis: { scale: true, min: Math.min(...allClose) * 0.98, max: Math.max(...allClose) * 1.02, ...priceFmt },
@@ -321,15 +321,15 @@ function render() {
       fill: '#555', fontSize: 11, fontFamily: 'Microsoft YaHei'
     } }],
     series: [
-      { name: '不复权收盘', type: 'line', data: closeN, smooth: true, showSymbol: false, lineStyle: { color: '#667eea', width: 2 },
+      { name: '不复权收盘', type: 'line', data: closeN, smooth: true, showSymbol: false, symbol: 'none', lineStyle: { color: '#667eea', width: 2 },
         areaStyle: { opacity: 0.06 } },
-      { name: '前复权收盘', type: 'line', data: closeQ, smooth: true, showSymbol: false, lineStyle: { color: '#e67e22', width: 2 } }
+      { name: '前复权收盘', type: 'line', data: closeQ, smooth: true, showSymbol: false, symbol: 'none', lineStyle: { color: '#e67e22', width: 2 } }
     ]
   }, true);
 
   // 日涨跌幅度
   charts.dist.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' }, formatter: params => { const p=params[0]; return `${p.axisValue}<br/>涨跌: ${p.value.toFixed(2)}%`; } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;', formatter: params => { const p=params[0]; return `${p.axisValue}<br/>涨跌: ${p.value.toFixed(2)}%`; } },
     legend: { data: ['日涨跌%'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates),
@@ -345,11 +345,11 @@ function render() {
   // RSI
   const r = rsiCalc(close, pRsi);
   charts.rsi.setOption({
-    tooltip: tip(), legend: { data: ['RSI'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
+    tooltip: tip(), legend: { data: ['RSI'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { min: 0, max: 100 },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
-    series: [{ name: 'RSI', type: 'line', data: r, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 70, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买70' } }, { yAxis: 30, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖30' } }] } }]
+    series: [{ name: 'RSI', type: 'line', data: r, showSymbol: false, symbol: 'none', lineStyle: { color: '#667eea', width: 2 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 70, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买70' } }, { yAxis: 30, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖30' } }] } }]
   }, true);
 
   // MACD
@@ -360,8 +360,8 @@ function render() {
     xAxis: catAxis(dates), yAxis: { scale: true },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
-      { name: 'DIF', type: 'line', data: m.dif, showSymbol: false, lineStyle: { color: '#3498db', width: 1.5 } },
-      { name: 'DEA', type: 'line', data: m.dea, showSymbol: false, lineStyle: { color: '#e74c3c', width: 1.5 } },
+      { name: 'DIF', type: 'line', data: m.dif, showSymbol: false, symbol: 'none', lineStyle: { color: '#3498db', width: 1.5 } },
+      { name: 'DEA', type: 'line', data: m.dea, showSymbol: false, symbol: 'none', lineStyle: { color: '#e74c3c', width: 1.5 } },
       { name: 'MACD柱', type: 'bar', data: m.hist, itemStyle: { color: (p) => p.value >= 0 ? '#ec0000' : '#00da3c' } }
     ]
   }, true);
@@ -369,29 +369,29 @@ function render() {
   // 布林带
   const b = boll(close, pBb, pBbm);
   charts.bb.setOption({
-    tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
+    tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
-      { name: '收盘价', type: 'line', data: close, showSymbol: false, lineStyle: { color: '#667eea', width: 2 } },
-      { name: '上轨', type: 'line', data: b.up, showSymbol: false, lineStyle: { color: '#e74c3c', type: 'dashed' } },
-      { name: '中轨', type: 'line', data: b.mid, showSymbol: false, lineStyle: { color: '#f39c12' } },
-      { name: '下轨', type: 'line', data: b.low, showSymbol: false, lineStyle: { color: '#2ecc71', type: 'dashed' } }
+      { name: '收盘价', type: 'line', data: close, showSymbol: false, symbol: 'none', lineStyle: { color: '#667eea', width: 2 } },
+      { name: '上轨', type: 'line', data: b.up, showSymbol: false, symbol: 'none', lineStyle: { color: '#e74c3c', type: 'dashed' } },
+      { name: '中轨', type: 'line', data: b.mid, showSymbol: false, symbol: 'none', lineStyle: { color: '#f39c12' } },
+      { name: '下轨', type: 'line', data: b.low, showSymbol: false, symbol: 'none', lineStyle: { color: '#2ecc71', type: 'dashed' } }
     ]
   }, true);
 
   // KDJ
   const kd = kdjCalc(ohlc, pKdj);
   charts.kdj.setOption({
-    tooltip: tip(), legend: { data: ['K', 'D', 'J'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
+    tooltip: tip(), legend: { data: ['K', 'D', 'J'], top: 0, textStyle: { fontSize: 12 } },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
-      { name: 'K', type: 'line', data: kd.k, showSymbol: false, lineStyle: { color: '#3498db', width: 1.5 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 80, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买80' } }, { yAxis: 20, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖20' } }] } },
-      { name: 'D', type: 'line', data: kd.d, showSymbol: false, lineStyle: { color: '#e74c3c', width: 1.5 } },
-      { name: 'J', type: 'line', data: kd.j, showSymbol: false, lineStyle: { color: '#2ecc71', width: 1.5 } }
+      { name: 'K', type: 'line', data: kd.k, showSymbol: false, symbol: 'none', lineStyle: { color: '#3498db', width: 1.5 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 80, lineStyle: { color: '#e74c3c' }, label: { formatter: '超买80' } }, { yAxis: 20, lineStyle: { color: '#2ecc71' }, label: { formatter: '超卖20' } }] } },
+      { name: 'D', type: 'line', data: kd.d, showSymbol: false, symbol: 'none', lineStyle: { color: '#e74c3c', width: 1.5 } },
+      { name: 'J', type: 'line', data: kd.j, showSymbol: false, symbol: 'none', lineStyle: { color: '#2ecc71', width: 1.5 } }
     ]
   }, true);
 }

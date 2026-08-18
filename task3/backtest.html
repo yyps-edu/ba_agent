@@ -309,15 +309,15 @@ function render() {
 
   // 资金曲线
   charts.equity.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    legend: { data: ['策略资金', '基准(买入持有)'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
+    legend: { data: ['策略资金', '基准(买入持有)'], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: 70, right: 40, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => (v / 10000).toFixed(1) + '万' } },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
-      { name: '策略资金', type: 'line', data: bt.equity, showSymbol: false, lineStyle: { color: '#667eea', width: 2 }, areaStyle: { opacity: 0.08 } },
-      { name: '基准(买入持有)', type: 'line', data: bt.benchmark, showSymbol: false, lineStyle: { color: '#e67e22', width: 2, type: 'dashed' } }
+      { name: '策略资金', type: 'line', data: bt.equity, showSymbol: false, symbol: 'none', lineStyle: { color: '#667eea', width: 2 }, areaStyle: { opacity: 0.08 } },
+      { name: '基准(买入持有)', type: 'line', data: bt.benchmark, showSymbol: false, symbol: 'none', lineStyle: { color: '#e67e22', width: 2, type: 'dashed' } }
     ]
   }, true);
 
@@ -325,17 +325,17 @@ function render() {
   const buyMarks = bt.buySignals.map(s => ({ coord: [s.date, s.price], value: '买', itemStyle: { color: '#e74c3c' } }));
   const sellMarks = bt.sellSignals.map(s => ({ coord: [s.date, s.price], value: '卖', itemStyle: { color: '#2ecc71' } }));
   charts.price.setOption({
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    legend: { data: ['收盘价', 'MA' + pShort, 'MA' + pLong], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
+    legend: { data: ['收盘价', 'MA' + pShort, 'MA' + pLong], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: 60, right: 60, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => Number(v).toFixed(2) } },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
     series: [
-      { name: '收盘价', type: 'line', data: close, showSymbol: false, lineStyle: { color: '#333', width: 1 },
+      { name: '收盘价', type: 'line', data: close, showSymbol: false, symbol: 'none', lineStyle: { color: '#333', width: 1 },
         markPoint: { data: [...buyMarks, ...sellMarks], symbolSize: 28, label: { fontSize: 10, color: '#fff', fontWeight: 'bold' } } },
-      { name: 'MA' + pShort, type: 'line', data: bt.shortMA, showSymbol: false, lineStyle: { color: '#e74c3c', width: 1.5 } },
-      { name: 'MA' + pLong, type: 'line', data: bt.longMA, showSymbol: false, lineStyle: { color: '#2ecc71', width: 1.5 } }
+      { name: 'MA' + pShort, type: 'line', data: bt.shortMA, showSymbol: false, symbol: 'none', lineStyle: { color: '#e74c3c', width: 1.5 } },
+      { name: 'MA' + pLong, type: 'line', data: bt.longMA, showSymbol: false, symbol: 'none', lineStyle: { color: '#2ecc71', width: 1.5 } }
     ]
   }, true);
 
