@@ -436,7 +436,7 @@ function render() {
   const closes = ohlc.map(d => d[1]);
   charts.price.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
-    legend: { data: ['收盘价','入场上轨('+pEntry+')','入场下轨('+pEntry+')','出场下轨('+pExit+')'], top: 0, textStyle: { fontSize: 11 } },
+    legend: { data: ['收盘价','入场上轨('+pEntry+'日)','入场下轨('+pEntry+'日)','出场下轨('+pExit+'日)'], top: 0, textStyle: { fontSize: 11 } },
     grid: { left: 60, right: 60, bottom: 56, top: 40 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => Number(v).toFixed(2) } },
@@ -453,7 +453,7 @@ function render() {
   // ATR 波动率
   charts.atr.setOption({
     tooltip: { trigger: 'axis', formatter: params => `${params[0].axisValue}<br/>ATR: ${params[0].value !== null ? params[0].value.toFixed(3) : 'N/A'}`, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
-    legend: { data: ['ATR('+pAtr+')'], top: 0, textStyle: { fontSize: 12 } },
+    legend: { data: ['ATR('+pAtr+'日)'], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: 60, right: 40, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => v.toFixed(2) } },
