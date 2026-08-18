@@ -420,8 +420,8 @@ function render() {
   charts.equity.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
     legend: { data: [
-      { name: '策略资金', icon: 'path://M0 5 L8 5 M12 5 L20 5 M10 5 m -2 0 a 2 2 0 1 0 4 0 a 2 2 0 1 0 -4 0', itemStyle: { color: '#667eea', lineStyle: { type: 'solid', width: 2, color: '#667eea' } } },
-      { name: '基准(买入持有)', icon: 'path://M0 5 L8 5 M12 5 L20 5 M10 5 m -2 0 a 2 2 0 1 0 4 0 a 2 2 0 1 0 -4 0', itemStyle: { color: '#e67e22', lineStyle: { type: 'dashed', width: 2, color: '#e67e22' } } }
+      { name: '策略资金', icon: 'path://M0 5 L20 5', itemStyle: { color: '#667eea', lineStyle: { type: 'solid', width: 2, color: '#667eea' } } },
+      { name: '基准(买入持有)', icon: 'path://M0 5 L20 5', itemStyle: { color: '#e67e22', lineStyle: { type: 'dashed', width: 2, color: '#e67e22' } } }
     ], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: 70, right: 40, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
@@ -440,10 +440,10 @@ function render() {
   charts.price.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
     legend: { data: [
-      { name: '收盘价', icon: 'path://M0 5 L8 5 M12 5 L20 5 M10 5 m -2 0 a 2 2 0 1 0 4 0 a 2 2 0 1 0 -4 0', itemStyle: { color: '#333', lineStyle: { type: 'solid', width: 1, color: '#333' } } },
-      { name: '入场上轨(' + pEntry + '日)', icon: 'path://M0 5 L8 5 M12 5 L20 5 M10 5 m -2 0 a 2 2 0 1 0 4 0 a 2 2 0 1 0 -4 0', itemStyle: { color: '#e74c3c', lineStyle: { type: 'dashed', width: 1.5, color: '#e74c3c' } } },
-      { name: '入场下轨(' + pEntry + '日)', icon: 'path://M0 5 L8 5 M12 5 L20 5 M10 5 m -2 0 a 2 2 0 1 0 4 0 a 2 2 0 1 0 -4 0', itemStyle: { color: '#3498db', lineStyle: { type: 'dashed', width: 1, color: '#3498db' } } },
-      { name: '出场下轨(' + pExit + '日)', icon: 'path://M0 5 L8 5 M12 5 L20 5 M10 5 m -2 0 a 2 2 0 1 0 4 0 a 2 2 0 1 0 -4 0', itemStyle: { color: '#2ecc71', lineStyle: { type: 'dotted', width: 1.5, color: '#2ecc71' } } }
+      { name: '收盘价', icon: 'path://M0 5 L20 5', itemStyle: { color: '#333', lineStyle: { type: 'solid', width: 1, color: '#333' } } },
+      { name: '入场上轨(' + pEntry + '日)', icon: 'path://M0 5 L20 5', itemStyle: { color: '#e74c3c', lineStyle: { type: 'dashed', width: 1.5, color: '#e74c3c' } } },
+      { name: '入场下轨(' + pEntry + '日)', icon: 'path://M0 5 L20 5', itemStyle: { color: '#3498db', lineStyle: { type: 'dashed', width: 1, color: '#3498db' } } },
+      { name: '出场下轨(' + pExit + '日)', icon: 'path://M0 5 L20 5', itemStyle: { color: '#2ecc71', lineStyle: { type: 'dotted', width: 1.5, color: '#2ecc71' } } }
     ], top: 0, textStyle: { fontSize: 11 } },
     grid: { left: 60, right: 60, bottom: 56, top: 40 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
@@ -462,7 +462,7 @@ function render() {
   charts.atr.setOption({
     tooltip: { trigger: 'axis', formatter: params => `${params[0].axisValue}<br/>ATR: ${params[0].value !== null ? params[0].value.toFixed(3) : 'N/A'}`, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
     legend: { data: [
-      { name: 'ATR(' + pAtr + '日)', icon: 'path://M0 5 L8 5 M12 5 L20 5 M10 5 m -2 0 a 2 2 0 1 0 4 0 a 2 2 0 1 0 -4 0', itemStyle: { color: '#9b59b6', lineStyle: { type: 'solid', width: 1.5, color: '#9b59b6' } } }
+      { name: 'ATR(' + pAtr + '日)', icon: 'path://M0 5 L20 5', itemStyle: { color: '#9b59b6', lineStyle: { type: 'solid', width: 1.5, color: '#9b59b6' } } }
     ], top: 0, textStyle: { fontSize: 12 } },
     grid: { left: 60, right: 40, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
