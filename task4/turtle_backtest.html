@@ -419,7 +419,7 @@ function render() {
   // 资金曲线
   charts.equity.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    legend: { data: ['策略资金', '基准(买入持有)'], top: 0, textStyle: { fontSize: 12 } },
+    legend: { data: ['策略资金', '基准(买入持有)'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
     grid: { left: 70, right: 40, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => (v / 10000).toFixed(1) + '万' } },
@@ -436,7 +436,7 @@ function render() {
   const closes = ohlc.map(d => d[1]);
   charts.price.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-    legend: { data: ['收盘价', '入场上轨(' + pEntry + '日)', '入场下轨(' + pEntry + '日)', '出场下轨(' + pExit + '日)'], top: 0, textStyle: { fontSize: 11 } },
+    legend: { data: ['收盘价', '入场上轨(' + pEntry + '日)', '入场下轨(' + pEntry + '日)', '出场下轨(' + pExit + '日)'], top: 0, textStyle: { fontSize: 11 }, icon: 'path://M0 5 L20 5' },
     grid: { left: 60, right: 60, bottom: 56, top: 40 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => Number(v).toFixed(2) } },
@@ -453,7 +453,7 @@ function render() {
   // ATR 波动率
   charts.atr.setOption({
     tooltip: { trigger: 'axis', formatter: params => `${params[0].axisValue}<br/>ATR: ${params[0].value !== null ? params[0].value.toFixed(3) : 'N/A'}` },
-    legend: { data: ['ATR(' + pAtr + '日)'], top: 0, textStyle: { fontSize: 12 } },
+    legend: { data: ['ATR(' + pAtr + '日)'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
     grid: { left: 60, right: 40, bottom: 56, top: 30 },
     xAxis: { type: 'category', data: dates, axisLabel: { formatter: v => v.slice(0, 7) } },
     yAxis: { scale: true, axisLabel: { formatter: v => v.toFixed(2) } },

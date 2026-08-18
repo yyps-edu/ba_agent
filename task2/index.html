@@ -279,7 +279,7 @@ function render() {
   // 均线
   charts.ma.setOption({
     tooltip: tip(),
-    legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 } },
+    legend: { data: ['MA' + pMa, 'MA' + pMa2], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
@@ -311,7 +311,7 @@ function render() {
         return `${params[0].axisValue}<br/>${rows}`;
       }
     },
-    legend: { data: ['不复权收盘', '前复权收盘'], top: 0, textStyle: { fontSize: 12 } },
+    legend: { data: ['不复权收盘', '前复权收盘'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
     grid: g,
     xAxis: { type: 'category', data: shareDates, axisLabel: { formatter: v => v.slice(5) } },
     yAxis: { scale: true, min: Math.min(...allClose) * 0.98, max: Math.max(...allClose) * 1.02, ...priceFmt },
@@ -345,7 +345,7 @@ function render() {
   // RSI
   const r = rsiCalc(close, pRsi);
   charts.rsi.setOption({
-    tooltip: tip(), legend: { data: ['RSI'], top: 0, textStyle: { fontSize: 12 } },
+    tooltip: tip(), legend: { data: ['RSI'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
     grid: g,
     xAxis: catAxis(dates), yAxis: { min: 0, max: 100 },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
@@ -369,7 +369,7 @@ function render() {
   // 布林带
   const b = boll(close, pBb, pBbm);
   charts.bb.setOption({
-    tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0, textStyle: { fontSize: 12 } },
+    tooltip: tip(), legend: { data: ['收盘价', '上轨', '中轨', '下轨'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
@@ -384,7 +384,7 @@ function render() {
   // KDJ
   const kd = kdjCalc(ohlc, pKdj);
   charts.kdj.setOption({
-    tooltip: tip(), legend: { data: ['K', 'D', 'J'], top: 0, textStyle: { fontSize: 12 } },
+    tooltip: tip(), legend: { data: ['K', 'D', 'J'], top: 0, textStyle: { fontSize: 12 }, icon: 'path://M0 5 L20 5' },
     grid: g,
     xAxis: catAxis(dates), yAxis: { scale: true },
     dataZoom: [{ type: 'inside', start: 0, end: 100 }],
