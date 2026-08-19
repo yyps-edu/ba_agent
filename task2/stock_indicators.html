@@ -66,15 +66,17 @@ body {
 .q-nav-links a:hover { color: var(--brand); }
 .q-nav-links a.active { color: var(--brand); font-weight: 600; }
 .q-nav-spacer { flex: 1; }
-.q-page-label {
- display: inline-flex; align-items: center; gap: 8px;
- color: var(--text-1); font-size: 14px; font-weight: 700;
- padding: 6px 12px;
+.q-nav-time {
+ display: inline-flex; align-items: center; gap: 6px;
+ color: var(--text-2); font-size: 13px; font-weight: 500;
+ padding: 6px 14px;
  background: #eef2fa;
  border: 1px solid #dbe4f5;
  border-radius: 8px;
+ white-space: nowrap;
 }
-.q-page-label .emoji { font-size: 16px; }
+.q-nav-time .label { color: var(--text-3); }
+.q-nav-time b { color: var(--brand); font-weight: 700; }
 
 .container { max-width: 1700px; margin: 0 auto; padding: 20px; }
 /* 控件面板：替代旧紫色 Banner */
@@ -144,27 +146,21 @@ body {
 <!-- ============ 顶部 Sticky 深色品牌导航 ============ -->
 <nav class="q-nav" aria-label="主导航">
  <div class="q-nav-inner">
- <a class="q-brand" href="../index.html" title="返回首页">
- <span class="logo"></span>
- <span>股票交易看板</span>
- </a>
+ <a class="q-brand" href="../index.html" title="返回首页">股票交易指标&回测</a>
  <div class="q-nav-links">
  <a href="../index.html">首页</a>
- <a href="../task2/stock_indicators.html" class="active">技术指标</a>
+ <a href="../task2/stock_indicators.html" class="active">交易指标</a>
  <a href="../task3/ma_strategy_backtest.html">均线策略</a>
  <a href="../task4/atr_strategy_backtest.html">ATR 策略</a>
- <a href="../.github/workflows/daily_data.yml">数据源</a>
  </div>
  <div class="q-nav-spacer"></div>
- <span class="q-page-label" aria-label="当前页面">
- 技术指标
- </span>
+ <span id="navTime" class="q-nav-time"><span class="label">样本区间</span> <b>—</b></span>
  </div>
 </nav>
 
 <div class="container">
  <div class="header">
- <h1> 技术指标看板</h1>
+ <h1>股票交易指标看板</h1>
  <div class="header-right">
  <div class="adj-switch" role="switch" aria-label="前复权开关">
  <span>前复权</span>
@@ -231,7 +227,7 @@ body {
  <div id="c-bb" class="chart"></div>
  </div>
 
- <div class="chart-box">
+ <div class="chart-box full">
  <div class="chart-title">KDJ</div>
  <div class="params-bar">
  <div class="param"><label>KDJ <span id="v-kdj">9</span></label><input type="range" id="p-kdj" min="3" max="30" value="9"></div>
@@ -239,7 +235,7 @@ body {
  <div id="c-kdj" class="chart tall"></div>
  </div>
 
- <div class="chart-box">
+ <div class="chart-box full">
  <div class="chart-title">K线</div>
  <div id="c-kline" class="chart tall"></div>
  </div>
@@ -346,13 +342,15 @@ function render() {
  const std = Math.sqrt(pct.reduce((a, b) => a + (b - mean) ** 2, 0) / pct.length);
  const stats = [
  ['股票代码', meta.code],
- ['时间区间', dates[0].slice(2).replace(/-/g,'.') + ' ~ ' + dates[dates.length - 1].slice(2).replace(/-/g,'.')],
  ['最新收盘', close[close.length - 1].toFixed(2)],
  ['日均涨跌', mean.toFixed(4) + '%'],
  ['波动率', std.toFixed(4) + '%'],
  ['最大涨幅', '+' + Math.max(...pct).toFixed(2) + '%'],
  ['最大跌幅', Math.min(...pct).toFixed(2) + '%'],
  ];
+ /* 更新导航右上角样本区间 */
+ const navT = document.getElementById('navTime');
+ if (navT) navT.innerHTML = '<span class="label">样本区间</span> <b>' + dates[0] + ' ~ ' + dates[dates.length - 1] + '</b>';
  document.getElementById('stats').innerHTML = stats.map(([l, v]) =>
  `<div class="stat-item"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
 
@@ -380,7 +378,7 @@ function render() {
  ],
  series: [
  { name: '日K', type: 'candlestick', xAxisIndex: 0, yAxisIndex: 0, data: ohlc, itemStyle: { color: '#ec0000', color0: '#00da3c', borderColor: '#8A0000', borderColor0: '#008F28' } },
- { name: '收盘价', type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: close, smooth: true, showSymbol: false, symbol: 'none', itemStyle: { color: '#1f2937' }, lineStyle: { color: '#1f2937', width: 1.4 } },
+ { name: '收盘价', type: 'line', xAxisIndex: 0, yAxisIndex: 0, data: close, smooth: true, showSymbol: false, symbol: 'none', itemStyle: { color: '#6b7280' }, lineStyle: { color: '#6b7280', width: 1.4 } },
  { name: '成交量', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, data: vol, itemStyle: { color: (p) => ohlc[p.dataIndex][1] >= ohlc[p.dataIndex][0] ? '#ec0000' : '#00da3c' } }
  ]
  }, true);
@@ -466,7 +464,7 @@ function render() {
  grid: g,
  xAxis: catAxis(dates), yAxis: { min: 0, max: 100 },
  dataZoom: [{ type: 'inside', start: 0, end: 100 }],
- series: [{ name: 'RSI', type: 'line', data: r, showSymbol: false, symbol: 'none', itemStyle: { color: '#6d28d9' }, lineStyle: { color: '#6d28d9', width: 2.1 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 70, lineStyle: { color: '#b91c1c' }, label: { formatter: '超买70' } }, { yAxis: 30, lineStyle: { color: '#15803d' }, label: { formatter: '超卖30' } }] } }]
+ series: [{ name: 'RSI', type: 'line', data: r, showSymbol: false, symbol: 'none', itemStyle: { color: '#0891b2' }, lineStyle: { color: '#0891b2', width: 2.1 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 70, lineStyle: { color: '#b91c1c' }, label: { formatter: '超买70' } }, { yAxis: 30, lineStyle: { color: '#15803d' }, label: { formatter: '超卖30' } }] } }]
  }, true);
 
  // MACD
@@ -500,7 +498,7 @@ function render() {
  xAxis: catAxis(dates), yAxis: { scale: true, ...priceFmt },
  dataZoom: [{ type: 'inside', start: 0, end: 100 }],
  series: [
- { name: '收盘价', type: 'line', data: close, showSymbol: false, symbol: 'none', itemStyle: { color: '#1f2937' }, lineStyle: { color: '#1f2937', width: 1.6 } },
+ { name: '收盘价', type: 'line', data: close, showSymbol: false, symbol: 'none', itemStyle: { color: '#6b7280' }, lineStyle: { color: '#6b7280', width: 1.6 } },
  { name: '上轨', type: 'line', data: b.up, showSymbol: false, symbol: 'none', itemStyle: { color: '#b91c1c' }, lineStyle: { color: '#b91c1c', type: 'dashed', width: 1.6 } },
  { name: '中轨', type: 'line', data: b.mid, showSymbol: false, symbol: 'none', itemStyle: { color: '#c4921a' }, lineStyle: { color: '#c4921a', width: 1.8 } },
  { name: '下轨', type: 'line', data: b.low, showSymbol: false, symbol: 'none', itemStyle: { color: '#15803d' }, lineStyle: { color: '#15803d', type: 'dashed', width: 1.6 } }
@@ -521,7 +519,7 @@ function render() {
  series: [
  { name: 'K', type: 'line', data: kd.k, showSymbol: false, symbol: 'none', itemStyle: { color: '#2b4c9e' }, lineStyle: { color: '#2b4c9e', width: 1.9 }, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 80, lineStyle: { color: '#b91c1c' }, label: { formatter: '超买80' } }, { yAxis: 20, lineStyle: { color: '#15803d' }, label: { formatter: '超卖20' } }] } },
  { name: 'D', type: 'line', data: kd.d, showSymbol: false, symbol: 'none', itemStyle: { color: '#c4921a' }, lineStyle: { color: '#c4921a', width: 1.9 } },
- { name: 'J', type: 'line', data: kd.j, showSymbol: false, symbol: 'none', itemStyle: { color: '#6d28d9' }, lineStyle: { color: '#6d28d9', width: 1.9 } }
+ { name: 'J', type: 'line', data: kd.j, showSymbol: false, symbol: 'none', itemStyle: { color: '#0891b2' }, lineStyle: { color: '#0891b2', width: 1.9 } }
  ]
  }, true);
 }

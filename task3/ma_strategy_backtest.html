@@ -65,15 +65,17 @@ body {
 .q-nav-links a:hover { color: var(--brand); }
 .q-nav-links a.active { color: var(--brand); font-weight: 600; }
 .q-nav-spacer { flex: 1; }
-.q-page-label {
- display: inline-flex; align-items: center; gap: 8px;
- color: var(--text-1); font-size: 14px; font-weight: 700;
- padding: 6px 12px;
+.q-nav-time {
+ display: inline-flex; align-items: center; gap: 6px;
+ color: var(--text-2); font-size: 13px; font-weight: 500;
+ padding: 6px 14px;
  background: #eef2fa;
  border: 1px solid #dbe4f5;
  border-radius: 8px;
+ white-space: nowrap;
 }
-.q-page-label .emoji { font-size: 16px; }
+.q-nav-time .label { color: var(--text-3); }
+.q-nav-time b { color: var(--brand); font-weight: 700; }
 
 /* ============ 布局/面板 ============ */
 .container { max-width: 1700px; margin: 0 auto; padding: 20px; }
@@ -140,8 +142,9 @@ body {
 .trade-table th { background: var(--bg-1); padding: 8px 10px; text-align: left; color: var(--text-2); font-weight: 600; border-bottom: 2px solid var(--border-2); white-space: nowrap; }
 .trade-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); color: var(--text-1); white-space: nowrap; }
 .trade-table tr:hover { background: var(--bg-1); }
-.buy-tag { color: var(--red); font-weight: 700; }
-.sell-tag { color: var(--green); font-weight: 700; }
+tr.buy-tag td { color: var(--red); }
+tr.sell-tag td { color: var(--green); }
+tr.buy-tag td:nth-child(2), tr.sell-tag td:nth-child(2) { font-weight: 700; }
 .table-wrap { max-height: 300px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); }
 
 .footer { text-align: center; padding: 24px 20px 32px; color: var(--text-3); font-size: 13px; margin-top: 20px; border-top: 1px solid var(--border); }
@@ -160,21 +163,15 @@ body {
 <!-- ============ 顶部 Sticky 深色品牌导航 ============ -->
 <nav class="q-nav" aria-label="主导航">
  <div class="q-nav-inner">
- <a class="q-brand" href="../index.html" title="返回首页">
- <span class="logo"></span>
- <span>股票交易看板</span>
- </a>
+ <a class="q-brand" href="../index.html" title="返回首页">股票交易指标&回测</a>
  <div class="q-nav-links">
  <a href="../index.html">首页</a>
- <a href="../task2/stock_indicators.html">技术指标</a>
+ <a href="../task2/stock_indicators.html">交易指标</a>
  <a href="../task3/ma_strategy_backtest.html" class="active">均线策略</a>
  <a href="../task4/atr_strategy_backtest.html">ATR 策略</a>
- <a href="../.github/workflows/daily_data.yml">数据源</a>
  </div>
  <div class="q-nav-spacer"></div>
- <span class="q-page-label" aria-label="当前页面">
- 均线策略回测
- </span>
+ <span id="navTime" class="q-nav-time"><span class="label">样本区间</span> <b>—</b></span>
  </div>
 </nav>
 
@@ -386,6 +383,9 @@ function render() {
  const meta = DATA[curStock];
  const s = meta[curAdj];
  const dates = s.dates, close = s.close;
+ /* 更新导航右上角样本区间 */
+ const navT = document.getElementById('navTime');
+ if (navT) navT.innerHTML = '<span class="label">样本区间</span> <b>' + dates[0] + ' ~ ' + dates[dates.length - 1] + '</b>';
 
  const pShort = val('p-short');
  const pLong = val('p-long');
@@ -428,8 +428,8 @@ function render() {
  }, true);
 
  // 价格 + 均线 + 买卖信号
- const buyMarks = bt.buySignals.map(s => ({ coord: [s.date, s.price], value: '买', itemStyle: { color: '#b91c1c' } }));
- const sellMarks = bt.sellSignals.map(s => ({ coord: [s.date, s.price], value: '卖', itemStyle: { color: '#15803d' } }));
+ const buyMarks = bt.buySignals.map(s => ({ coord: [s.date, s.price], value: '买', symbol: 'triangle', symbolSize: 10, itemStyle: { color: '#b91c1c' }, label: { fontSize: 10, color: '#b91c1c', fontWeight: 'bold', position: 'top' } }));
+ const sellMarks = bt.sellSignals.map(s => ({ coord: [s.date, s.price], value: '卖', symbol: 'triangle', symbolSize: 10, symbolRotate: 180, itemStyle: { color: '#15803d' }, label: { fontSize: 10, color: '#15803d', fontWeight: 'bold', position: 'bottom' } }));
  charts.price.setOption({
  tooltip: { trigger: 'axis', axisPointer: { type: 'line' }, position: 'right', confine: true, extraCssText: 'z-index: 10;' },
  legend: { data: ['收盘价','MA'+pShort,'MA'+pLong], top: 0, textStyle: { fontSize: 12 } },
@@ -438,8 +438,8 @@ function render() {
  yAxis: { scale: true, axisLabel: { formatter: v => Number(v).toFixed(2) } },
  dataZoom: [{ type: 'inside', start: 0, end: 100 }],
  series: [
- { name: '收盘价', type: 'line', data: close, showSymbol: false, symbol: 'none', lineStyle: { color: '#1f2937', width: 1.3 }, itemStyle: { color: '#1f2937' },
- markPoint: { data: [...buyMarks, ...sellMarks], symbolSize: 28, label: { fontSize: 10, color: '#fff', fontWeight: 'bold' } } },
+ { name: '收盘价', type: 'line', data: close, showSymbol: false, symbol: 'none', lineStyle: { color: '#6b7280', width: 1.3 }, itemStyle: { color: '#6b7280' },
+ markPoint: { data: [...buyMarks, ...sellMarks] } },
  { name: 'MA' + pShort, type: 'line', data: bt.shortMA, showSymbol: false, symbol: 'none', lineStyle: { color: '#b91c1c', width: 1.8 }, itemStyle: { color: '#b91c1c' } },
  { name: 'MA' + pLong, type: 'line', data: bt.longMA, showSymbol: false, symbol: 'none', lineStyle: { color: '#15803d', width: 1.8 }, itemStyle: { color: '#15803d' } }
  ]
@@ -459,7 +459,7 @@ function render() {
  // 交易明细表
  const tbody = document.querySelector('#tradeTable tbody');
  tbody.innerHTML = bt.trades.map((t, i) =>
- `<tr><td>${i + 1}</td><td class="${t.type === '买入' ? 'buy-tag' : 'sell-tag'}">${t.type}</td><td>${t.date}</td><td>${t.price}</td><td>${t.shares}</td><td>${t.amount}</td><td>${t.fee}</td></tr>`
+ `<tr class="${t.type === '买入' ? 'buy-tag' : 'sell-tag'}"><td>${i + 1}</td><td>${t.type}</td><td>${t.date}</td><td>${t.price}</td><td>${t.shares}</td><td>${t.amount}</td><td>${t.fee}</td></tr>`
  ).join('');
 }
 
